@@ -24,10 +24,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 func register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-		date := r.FormValue("date")
-		random := r.FormValue("random")
+		// username := r.FormValue("user")
+		// password := r.FormValue("password")
+		// date := r.FormValue("date")
+		// random := r.FormValue("random")
+
+		
 
 
 		result := map[string]string{"status": "0", "key": "jsikeoadfoutdjjfooo"}
