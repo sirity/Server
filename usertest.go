@@ -13,7 +13,7 @@ func main() {
 
 
 func httpPost() {
-    resp, err := http.PostForm("http://127.0.0.1:1280/user/login",
+    resp, err := http.PostForm("http://121.40.94.51:1280/user/login",
         url.Values{"username": {"Value"}, "password": {"123"}, "date": {"2014-8-10"}, "random": {"1299"}})
     if err != nil {
         fmt.Println(err)

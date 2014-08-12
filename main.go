@@ -41,5 +41,8 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    server.Run()
+    // server.Run()
+    server.Init()
+    server.TestDatabase()
+    
 }

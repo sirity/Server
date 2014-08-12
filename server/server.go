@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"log"
+    "fmt"
 )
 
 var mymux *http.ServeMux
@@ -18,6 +19,27 @@ func Run() {
     if err != nil {
 
         log.Fatal("ListenAndServe: ", err)
+    }
+}
 
+func TestDatabase() {
+    var user User
+    users := user.QueryAll()
+    var le = len(users)
+    for i := 0; i < le; i++ {
+        fmt.Println(users[i].contents["id"])
+        fmt.Println(users[i].contents["username"])
+        fmt.Println("xxxxxxxxxxxxxxx")
+    }
+}
+
+func TestUsers() {
+    var user User
+    users := user.QueryAll()
+    var le = len(users)
+    for i := 0; i < le; i++ {
+        fmt.Println(users[i].contents["id"])
+        fmt.Println(users[i].contents["username"])
+        fmt.Println("xxxxxxxxxxxxxxx")
     }
 }
