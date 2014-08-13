@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"crypto/md5"
     "encoding/hex"
+    "time"
+    "math/rand"
 )
 
 
@@ -15,18 +17,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		date := r.FormValue("date")
 		random := r.FormValue("random")
-
 		if !CheckAttack(username, date, random) {
 			var user User
 			user1 := user.QueryUser(username)
-			if user1 !=nil{
+			if user1.contents !=nil{
 				//user exist
-				temp : = []byte(password)
+				temp := []byte(password)
 			    h := md5.New()
 			    h.Write([]byte(user1.contents["password"] + date))
 				if HexEncodeEqual(temp, h.Sum(nil)) {
 					//login success
-					result := map[string]string{"status": "0", "key": username + password + date + random}
+					sk := SessionKey(username)
+					addUser(username, sk, user1.contents["interest"], date)
+					result := map[string]string{"status": "0", "key": sk}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				} else{
@@ -94,6 +97,8 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 
 }
 
+const hextable = "0123456789abcdef"
+
 func HexEncodeEqual(dst, src []byte) bool {
     for i, v := range src {
         if dst[i*2] != hextable[v>>4] || dst[i*2+1] != hextable[v&0x0f] {
@@ -110,7 +115,7 @@ func CheckAttack(username string, date string, str string) bool {
 	h1 := md5.New()
 	h1.Write([]byte(date + "hello"))
 	b := hex.EncodeToString(h1.Sum(nil))
-	for i, v : range a {
+	for i, _ := range a {
 		if a[i] != str[i*2] || b[i] != str[i*2 + 1] {
 			return true
 		}
@@ -118,8 +123,18 @@ func CheckAttack(username string, date string, str string) bool {
 	return false
 }
 
-func SessionKey(username, ) string {
-	
+func SessionKey(username string) string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ran := r.Intn(90000) + 10000
+	str := "username" + username + "sessionkey" + time.Now().String() + "in the end" 
+	h := md5.New()
+	h.Write([]byte(str))
+	a := hex.EncodeToString(h.Sum(nil))
+
+	h1 := md5.New()
+	h1.Write([]byte("random" + fmt.Sprintf("%d", ran)  + "username" + username))
+	b := hex.EncodeToString(h1.Sum(nil))
+	return b + a
 }
 
 

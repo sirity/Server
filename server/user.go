@@ -140,6 +140,9 @@ func (user User) QueryId(id int) User {
 func (user User) QueryUser(username string) User {
 
     // Execute the query
+    if db == nil {
+        fmt.Println("db is null")
+    }
     rows, err := db.Query("SELECT * FROM " + userTable + " where username = ? ", username)
     if err != nil {
         panic(err.Error()) // proper error handling instead of panic in your app
