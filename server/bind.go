@@ -5,8 +5,10 @@ func bind() {
 	//user bind
     mymux.HandleFunc("/user/login", login)
     mymux.HandleFunc("/user/register", register)
+    mymux.HandleFunc("/user/active", active)
     mymux.HandleFunc("/user/check_userid", checkUserid)
     mymux.HandleFunc("/user/logout", logout)
+
 
     //plan bind
     mymux.HandleFunc("/plan/fetch_plan", fetchPlan)

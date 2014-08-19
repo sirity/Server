@@ -19,29 +19,29 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 			"title":"ABC是什么意思",
 			"summary":"ABC到底是什么意思",
 			"type":"int",
-			"cover_url":"/article/img/ph.jpg",
-			"link":"http;///dsfdsfsdlkfjdsklfj.com/",
+			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFp2Rql.jpg",
+			"link":"http://www.cnbeta.com/articles/320323.htm",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,
 			"rates":"3.5",
 			"like_num":"12",
 			"do_i_like":"1",
-			"di_i_favor":"1"}
+			"do_i_favor":"1"}
 		infolist[1] = map[string]interface{}{
 			"content_id":"1000001",
 			"title":"ABC是什么意思",
 			"summary":"ABC到底是什么意思",
 			"type":"int",
-			"cover_url":"/article/img/ph.jpg",
-			"link":"http;///dsfdsfsdlkfjdsklfj.com/",
+			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFo0kK9.jpg",
+			"link":"http://www.cnbeta.com/articles/320321.htm",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,
 			"rates":"3.5",
 			"like_num":"12",
 			"do_i_like":"1",
-			"di_i_favor":"1"}
+			"do_i_favor":"1"}
 		result := map[string]interface{}{"status": "0", "info_list": infolist}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
@@ -78,33 +78,33 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 		tag := []string{"math", "english", "football"}
 		var infolist [2] interface{}
 		infolist[0] = map[string]interface{}{
-			"content_id":"1000001",
+			"content_id":"1000001", 
 			"title":"ABC是什么意思",
 			"summary":"ABC到底是什么意思",
 			"type":"int",
-			"cover_url":"/article/img/ph.jpg",
-			"link":"http;///dsfdsfsdlkfjdsklfj.com/",
+			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFp2Rql.jpg",
+			"link":"http://www.cnbeta.com/articles/320323.htm",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,
 			"rates":"3.5",
 			"like_num":"12",
 			"do_i_like":"1",
-			"di_i_favor":"1"}
+			"do_i_favor":"1"}
 		infolist[1] = map[string]interface{}{
 			"content_id":"1000001",
 			"title":"ABC是什么意思",
 			"summary":"ABC到底是什么意思",
 			"type":"int",
-			"cover_url":"/article/img/ph.jpg",
-			"link":"http;///dsfdsfsdlkfjdsklfj.com/",
+			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFo0kK9.jpg",
+			"link":"http://www.cnbeta.com/articles/320321.htm",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,
 			"rates":"3.5",
 			"like_num":"12",
 			"do_i_like":"1",
-			"di_i_favor":"1"}
+			"do_i_favor":"1"}
 		result := map[string]interface{}{"status": "0", "info_list": infolist}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))

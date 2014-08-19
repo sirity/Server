@@ -84,7 +84,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 				user.contents["status"] = "0"
 				user.insert()
 
-				// SendRegisterMail(username, content)
+				SendRegisterMail(username, "http://")
+
 				result := map[string]string{"status": "0", "result": "注册成功"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
@@ -98,6 +99,36 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}else{
 		//network wrong
 		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+func activeKey(username, date, random string) string{
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ran := r.Intn(90000) + 10000
+	str := "username" + username + "activekey" + time.Now().String() + "wawa" 
+	h := md5.New()
+	h.Write([]byte(str))
+	a := hex.EncodeToString(h.Sum(nil))
+
+	h1 := md5.New()
+	h1.Write([]byte("random" + fmt.Sprintf("%d", ran)  + "username" + username + "key" + random))
+	b := hex.EncodeToString(h1.Sum(nil))
+	return b + a
+}
+
+func active(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET"{
+		// username := r.FormValue("username")
+		// activekey := r.FormValue("activekey")
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}

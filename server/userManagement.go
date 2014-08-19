@@ -11,6 +11,7 @@ type UserPie struct {
 }
 
 var userMap map[string]UserPie
+var userHung map[string]string
 
 func ManageInit(){
 	userMap = make(map[string]UserPie)
