@@ -82,13 +82,28 @@ func register(w http.ResponseWriter, r *http.Request) {
 				user.contents["nickname"] = "我是小白"
 				user.contents["password"] = password
 				user.contents["status"] = "0"
-				user.insert()
+				if(user.insert()){
+					//insert success
+					sk := SessionKey(username)
+					addUser(username, sk, user1.contents["interest"], date)
 
-				SendRegisterMail(username, "http://")
+					ak := activeKey(username, date, random)
+					addHung(username, ak)
 
-				result := map[string]string{"status": "0", "result": "注册成功"}
-				strResult,_ := json.Marshal(result)
-				fmt.Fprintf(w, string(strResult))
+					// SendRegisterMail(username, "http://127.0.0.1:1280/user/active/?username=" + username +
+					// 	"&activekey=" + ak)
+					SendRegisterMail(username, "http://121.40.94.51:1280/user/active/?username=" + username +
+						"&activekey=" + ak)
+
+					result := map[string]string{"status": "0", "key": sk}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}else{
+					//insert fail
+					result := map[string]string{"status": "5", "key": "未知原因"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
 			}
 		}else{
 			//it's not our client
@@ -120,15 +135,27 @@ func activeKey(username, date, random string) string{
 
 func active(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET"{
-		// username := r.FormValue("username")
-		// activekey := r.FormValue("activekey")
-		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
-		strResult,_ := json.Marshal(result)
-		fmt.Fprintf(w, string(strResult))
+		username := r.FormValue("username")
+		activekey := r.FormValue("activekey")
+		fmt.Fprintf(w, userHung[username])
+		if userHung[username] == activekey && activekey!="" {
+			deleteHung(username)
+			var user User
+			user1 := user.QueryUser(username)
+			user1.contents["status"] = "1"
+			
+			if user1.update() {
+				fmt.Fprintf(w, "激活成功！")
+			}else {
+				fmt.Fprintf(w, "激活失败！")
+			}
+			
+		}else{
+			fmt.Fprintf(w, "链接失效！")
+		}
 	}else{
-		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		//network w
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -197,8 +224,6 @@ func CheckAttack(username string, date string, str string) bool {
 	h1 := md5.New()
 	h1.Write([]byte(date + "hello"))
 	b := hex.EncodeToString(h1.Sum(nil))
-	fmt.Println(a);
-	fmt.Println(b);
 	for i, _ := range a {
 		if a[i] != str[i*2] || b[i] != str[i*2 + 1] {
 			return true
@@ -221,6 +246,40 @@ func SessionKey(username string) string {
 	b := hex.EncodeToString(h1.Sum(nil))
 	return b + a
 }
+
+func matchSessionKey(key, sk string) bool {
+	str := SubString(key, 0, 63)
+	rs := []rune(key)  
+	lth := len(rs)
+	str1 := "sessionkey:sirity" + sk + SubString(key, 63, lth-1) + "time" 
+
+	h := md5.New()
+	h.Write([]byte(str1))
+	if HexEncodeEqual([]byte(str), h.Sum(nil)){
+		return true
+	}else{
+		return false
+	}
+}
+
+func SubString(str string,begin,length int) (substr string) {  
+	// 将字符串的转换成[]rune  
+	rs := []rune(str)  
+	lth := len(rs)
+	// 简单的越界判断  
+	if begin < 0 {  
+	begin = 0  
+	}  
+	if begin >= lth {  
+	begin = lth  
+	}  
+	end := begin + length  
+	if end > lth {  
+	end = lth   
+	}
+	// 返回子串  
+	return string(rs[begin:end])  
+}  
 
 /*
  *  user : example@example.com login smtp server user

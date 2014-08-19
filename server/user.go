@@ -194,20 +194,31 @@ func (user User) QueryUser(username string) User {
     return temp
 }
 
-func (user *User) insert() {
+func (user *User) insert() bool {
 	stmt, err := db.Prepare("INSERT INTO user (id, username, nickname, password, portraitUrl, gender, birthday, status, insterest)" + 
 		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	defer stmt.Close()
 	checkErr(err)
-	t, err := time.Parse("2006-01-02", user.contents["birthday"])
-    if err != nil {
-        fmt.Println(err)
-        return
+    var t interface{}
+    if user.contents["birthday"] == "" ||  user.contents["birthday"] == "NULL"{
+
+    }else{
+        t1, err := time.Parse("2006-01-02", user.contents["birthday"])
+        if err != nil {
+            fmt.Println(err)
+            return false
+        }
+        t = t1
     }
 	_, err = stmt.Exec(user.contents["id"], user.contents["username"], user.contents["nickname"],
 		user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
 		t, user.contents["status"], user.contents["insterest"])
 	checkErr(err)
+    if err != nil {
+        fmt.Println(err)
+        return false
+    }
+    return true
 }
 
 func (user *User) delete(){
@@ -218,20 +229,30 @@ func (user *User) delete(){
 	}
 }
 
-func (user *User) update(){
+func (user *User) update() bool {
 	stmt, err := db.Prepare("update user set username=?, nickname=?, password=?, portraitUrl=?, gender=?, " +
 		"birthday=?, status=?, insterest=? where id = ?")
     checkErr(err)
-    t, err := time.Parse("2006-01-02", user.contents["birthday"])
-    if err != nil {
-        fmt.Println(err)
-        return
+    var t interface{}
+    if user.contents["birthday"] == "" ||  user.contents["birthday"] == "NULL"{
+
+    }else{
+        t1, err := time.Parse("2006-01-02", user.contents["birthday"])
+        if err != nil {
+            fmt.Println(err)
+            return false
+        }
+        t = t1
     }
-    fmt.Println(t.String())
     _, err = stmt.Exec(user.contents["username"], user.contents["nickname"], user.contents["password"],
     	user.contents["portraitUrl"], user.contents["gender"], t,
      	user.contents["status"], user.contents["insterest"], user.contents["id"])
     checkErr(err)
+    if err != nil {
+        fmt.Println(err)
+        return false
+    }
+    return true
 }
 
 func checkErr(err error) {

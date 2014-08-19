@@ -15,6 +15,7 @@ var userHung map[string]string
 
 func ManageInit(){
 	userMap = make(map[string]UserPie)
+	userHung = make(map[string]string)
 }
 
 func addUser(username string, sk string, interest string, date string) {
@@ -23,4 +24,12 @@ func addUser(username string, sk string, interest string, date string) {
 
 func logOut(username string) {
 	delete(userMap, username)
+}
+
+func addHung(username, ak string) {
+	userHung[username] = ak;
+}
+
+func deleteHung(username string) {
+	delete(userHung, username)
 }
