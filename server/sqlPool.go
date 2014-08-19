@@ -12,7 +12,7 @@ const (
 )
 
 func Init(){
-	db1, err := sql.Open("mysql", "root:123@/mercury")
+	db1, err := sql.Open("mysql", "root:123@tcp(127.0.0.1:3306)/mercury")
     if err != nil {
         panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
     }
