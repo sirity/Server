@@ -440,7 +440,7 @@ func getNewPassword() string {
 	ran1 := r.Intn(3) + 5
 	var result string
 	for i:=0; i<ran1; i++ {
-		result = result + chartable[r.Intn(62)]
+		result = result + string(chartable[r.Intn(62)])
 	}
 	return result
 
