@@ -69,7 +69,7 @@ func (user User) QueryAll() map[int] *User {
         for i, col := range values {
             // Here we can check if the value is nil (NULL value)
             if col == nil {
-                value = "NULL"
+                value = ""
             } else {
                 value = string(col)
             }
@@ -124,7 +124,7 @@ func (user User) QueryId(id int) User {
         for i, col := range values {
             // Here we can check if the value is nil (NULL value)
             if col == nil {
-                value = "NULL"
+                value = ""
             } else {
                 value = string(col)
             }
@@ -181,7 +181,7 @@ func (user User) QueryUser(username string) User {
         for i, col := range values {
             // Here we can check if the value is nil (NULL value)
             if col == nil {
-                value = "NULL"
+                value = ""
             } else {
                 value = string(col)
             }
@@ -210,7 +210,14 @@ func (user *User) insert() bool {
         }
         t = t1
     }
-	_, err = stmt.Exec(user.contents["id"], user.contents["username"], user.contents["nickname"],
+
+    var index interface {}
+    if user.contents["id"] == "" || user.contents["id"] == "NULL" {
+
+    }else {
+        index = user.contents["id"]
+    }
+	_, err = stmt.Exec(index, user.contents["username"], user.contents["nickname"],
 		user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
 		t, user.contents["status"], user.contents["insterest"])
 	checkErr(err)
@@ -244,9 +251,17 @@ func (user *User) update() bool {
         }
         t = t1
     }
-    _, err = stmt.Exec(user.contents["username"], user.contents["nickname"], user.contents["password"],
-    	user.contents["portraitUrl"], user.contents["gender"], t,
-     	user.contents["status"], user.contents["insterest"], user.contents["id"])
+
+    var index interface {}
+    if user.contents["id"] == "" || user.contents["id"] == "NULL" {
+
+    }else {
+        index = user.contents["id"]
+    }
+    _, err = stmt.Exec(index, user.contents["username"], user.contents["nickname"],
+        user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
+        t, user.contents["status"], user.contents["insterest"])
+
     checkErr(err)
     if err != nil {
         fmt.Println(err)
