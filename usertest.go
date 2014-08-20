@@ -46,7 +46,7 @@ func httpPostFetchPlan() {
 }
 
 func httpPostRegister() {
-    resp, err := http.PostForm("http://127.0.0.1:1280/user/register",
+    resp, err := http.PostForm("http://121.40.94.51:1280/user/register",
         url.Values{"username": {"printf_ll@qq.com"}, "password": {"a670925a0a51e179f1343e8deb46dff7"}, "date": {"1408501471.322662"}, 
         "random": {"54867235a2215cf0f1ddcef8c42cfc04d005a07b5993f3d9ba963728c771dbfd"}})
     if err != nil {

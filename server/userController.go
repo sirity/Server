@@ -92,7 +92,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 					// SendRegisterMail(username, "http://127.0.0.1:1280/user/active/?username=" + username +
 					// 	"&activekey=" + ak)
-					SendRegisterMail(username, "http://121.40.94.51:1280/user/active/?username=" + username +
+					SendRegisterMail(username, mailAddress + "/user/active/?username=" + username +
 						"&activekey=" + ak)
 
 					result := map[string]string{"status": "0", "key": sk}
@@ -137,7 +137,6 @@ func active(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET"{
 		username := r.FormValue("username")
 		activekey := r.FormValue("activekey")
-		fmt.Fprintf(w, userHung[username])
 		if userHung[username] == activekey && activekey!="" {
 			deleteHung(username)
 			var user User
@@ -187,15 +186,121 @@ func checkUserid(w http.ResponseWriter, r *http.Request) {
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "loginout")
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		if userMap[username].sk!= ""{
+			if matchSessionKey(key, userMap[username].sk){
+				logOut(username)
+				result := map[string]string{"status": "0", "result": "登出成功"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}else {
+				//key not right
+				result := map[string]string{"status": "1", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "已经退出"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
 }
 
-func getUserInfo(w http.ResponseWriter, r *http.Request) {
-	
+func getProfile(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		if userMap[username].sk!= "" {
+			if matchSessionKey(key, userMap[username].sk){
+				var user User
+				user1 := user.QueryUser(username)
+
+				result := map[string]string{"status": "0", 
+					"username": user1.contents["username"],
+					"nickname": user1.contents["nickname"],
+					"portrait_url": user1.contents["portrait_url"],
+					"gender": user1.contents["gender"], 
+					"birthday": user1.contents["birthday"],
+					"state": user1.contents["status"], 
+					"interest": user1.contents["interest"],
+				}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}else {
+				//key not right
+				result := map[string]string{"status": "1", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
 }
 
-func setUserInfo(w http.ResponseWriter, r *http.Request) {
-	
+func setProfile(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		profile := r.FormValue("profile")
+		if userMap[username].sk!= "" {
+			if matchSessionKey(key, userMap[username].sk){
+				var user User
+				user1 := user.QueryUser(username)
+				var dat map[string]string
+				if err := json.Unmarshal([]byte(profile), &dat); err != nil {
+        			panic(err)
+    			}
+    			user1.contents["nickname"] = dat["nickname"]
+    			user1.contents["gender"] = dat["gender"]
+    			user1.contents["birthday"] = dat["birthday"]
+    			user1.contents["interest"] = dat["interest"]
+				
+				if user1.update() {
+					result := map[string]string{"status": "0", "result": "修改成功"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}else {
+					result := map[string]string{"status": "4", "result": "未知错误"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
+
+			}else {
+				//key not right
+				result := map[string]string{"status": "1", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
 }
 
 func uploadPortrait(w http.ResponseWriter, r *http.Request) {
@@ -203,8 +308,143 @@ func uploadPortrait(w http.ResponseWriter, r *http.Request) {
 }
 
 func setPassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		date := r.FormValue("date")
+		oldpw := r.FormValue("old_password")
+		newpw := r.FormValue("new_password")
+		if userMap[username].sk!="" {
+			if matchSessionKey(key, userMap[username].sk){
+				var user User
+				user1 := user.QueryUser(username)
 
+				temp := []byte(oldpw)
+			    h := md5.New()
+			    h.Write([]byte(user1.contents["password"] + date))
+				if HexEncodeEqual(temp, h.Sum(nil)) {
+					user1.contents["password"] = newpw
+					if user1.update() {
+						result := map[string]string{"status": "0", "result": "修改成功"}
+						strResult,_ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					}else {
+						result := map[string]string{"status": "5", "result": "未知错误"}
+						strResult,_ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					}
+				}else{
+					result := map[string]string{"status": "4", "result": "密码错误"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
+			}else {
+				//key not right
+				result := map[string]string{"status": "1", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
 }
+
+func forgetPassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		date := r.FormValue("date")
+		random := r.FormValue("random")
+		if !CheckAttack(username, date, random) {
+			var user User
+			user1 := user.QueryUser(username)
+			if user1.contents !=nil{
+				//user exist
+				fk := forgetKey(username, date, random)
+				addForget(username, fk)
+
+				SendRegisterMail(username, mailAddress + "/user/reset_password/?username=" + username +
+					"&forgetkey=" + fk)
+			}else{
+				//user not exist
+				result := map[string]string{"status": "2", "key": "用户名不存在"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		}else{
+			//it's not our client
+			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+		
+}
+
+func forgetKey(username, date, random string) string{
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ran := r.Intn(90000) + 10000
+	str := "username" + username + "forgetkey" + time.Now().String() + "doforget" 
+	h := md5.New()
+	h.Write([]byte(str))
+	a := hex.EncodeToString(h.Sum(nil))
+
+	h1 := md5.New()
+	h1.Write([]byte("random" + fmt.Sprintf("%d", ran)  + "username" + username + "key" + random + "forget"))
+	b := hex.EncodeToString(h1.Sum(nil))
+	return b + a
+}
+
+func resetPassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET"{
+		username := r.FormValue("username")
+		forgetkey := r.FormValue("forgetkey")
+		if userForget[username] == forgetkey && forgetkey!="" {
+			deleteForget(username)
+			var user User
+			user1 := user.QueryUser(username)
+
+			user1.contents["password"] = "1"
+			
+			if user1.update() {
+				fmt.Fprintf(w, "激活成功！")
+			}else {
+				fmt.Fprintf(w, "激活失败！")
+			}
+			
+		}else{
+			fmt.Fprintf(w, "链接失效！")
+		}
+	}else{
+		//network w
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+const chartable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// func getNewPassword() string {
+	// r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// ran1 := r.Intn(3) + 5
+	// for i:=0; i<ran1; i++ {
+		
+	// }
+	// ran3 := r.Intn(62)
+
+// }
 
 const hextable = "0123456789abcdef"
 
@@ -317,6 +557,32 @@ func SendRegisterMail(to, content string){
     <body>
     <h3>
         Welcome to register our APP click this to active your account
+        `+ content +
+        `
+    </h3>
+    </body>
+    </html>
+    `
+    err := SendMail(user, password, host, to, subject, body, "html")
+    if err != nil {
+        fmt.Println("send mail error!")
+        fmt.Println(err)
+    }else{
+        fmt.Println("send mail success!")
+    }
+}
+
+func SendForgetMail(to, content string){
+    user := "server@sirity.com"
+    password := "dream2014"
+    host := "smtp.exmail.qq.com:25"
+    subject := "forget password email from sirity"
+
+    body := `
+    <html>
+    <body>
+    <h3>
+        click next to generate your new password and please rember modify your password as soon as you login
         `+ content +
         `
     </h3>

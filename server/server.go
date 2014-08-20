@@ -7,6 +7,9 @@ import (
 )
 
 var mymux *http.ServeMux
+const (
+    mailAddress string = "http://121.40.94.51:1280"
+)
 
 func Run() {
 	

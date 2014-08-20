@@ -8,12 +8,16 @@ import (
 
 func fetchPlan(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
-		// username := r.FormValue("username")
-		// sk := r.FormValue("key")
-		// contentId := r.FormValue("content_id")
+		username := r.FormValue("username")
+		sk := r.FormValue("key")
+		config := r.FormValue("config")
+
+		fmt.Println(username)
+		fmt.Println(sk)
+		fmt.Println(config)
 
 		tag := []string{"math", "english", "football"}
-		var infolist [2] interface{}
+		var infolist [3] interface{}
 		infolist[0] = map[string]interface{}{
 			"content_id":"1000001", 
 			"title":"ABC是什么意思",
@@ -35,6 +39,20 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 			"type":"int",
 			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFo0kK9.jpg",
 			"link":"http://www.cnbeta.com/articles/320321.htm",
+			"author":"danis",
+			"source":"huxiu",
+			"tags":tag,
+			"rates":"3.5",
+			"like_num":"12",
+			"do_i_like":"1",
+			"do_i_favor":"1"}
+		infolist[2] = map[string]interface{}{
+			"content_id":"1000001",
+			"title":"ABC是什么意思",
+			"summary":"ABC到底是什么意思",
+			"type":"int",
+			"cover_url":"http://www.ituring.com.cn/download/01fwlV6fUtOu",
+			"link":"http://www.ituring.com.cn/article/119957",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,
@@ -76,7 +94,7 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 		// sk := r.FormValue("key")
 		// contentId := r.FormValue("content_id")
 		tag := []string{"math", "english", "football"}
-		var infolist [2] interface{}
+		var infolist [3] interface{}
 		infolist[0] = map[string]interface{}{
 			"content_id":"1000001", 
 			"title":"ABC是什么意思",
@@ -98,6 +116,20 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 			"type":"int",
 			"cover_url":"http://static.cnbetacdn.com/newsimg/2014/0819/29_1jYFo0kK9.jpg",
 			"link":"http://www.cnbeta.com/articles/320321.htm",
+			"author":"danis",
+			"source":"huxiu",
+			"tags":tag,
+			"rates":"3.5",
+			"like_num":"12",
+			"do_i_like":"1",
+			"do_i_favor":"1"}
+		infolist[2] = map[string]interface{}{
+			"content_id":"1000001",
+			"title":"ABC是什么意思",
+			"summary":"ABC到底是什么意思",
+			"type":"int",
+			"cover_url":"http://www.ituring.com.cn/download/01fwlV6fUtOu",
+			"link":"http://www.ituring.com.cn/article/119957",
 			"author":"danis",
 			"source":"huxiu",
 			"tags":tag,

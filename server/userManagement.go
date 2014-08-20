@@ -12,10 +12,12 @@ type UserPie struct {
 
 var userMap map[string]UserPie
 var userHung map[string]string
+var userForget map[string]string
 
 func ManageInit(){
 	userMap = make(map[string]UserPie)
 	userHung = make(map[string]string)
+	userForget = make(map[string]string)
 }
 
 func addUser(username string, sk string, interest string, date string) {
@@ -27,9 +29,17 @@ func logOut(username string) {
 }
 
 func addHung(username, ak string) {
-	userHung[username] = ak;
+	userHung[username] = ak
 }
 
 func deleteHung(username string) {
 	delete(userHung, username)
+}
+
+func addForget(username, fk string) {
+	userForget[username] = fk
+}
+
+func deleteForget(username string) {
+	delete(userForget, username)
 }
