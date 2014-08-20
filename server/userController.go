@@ -416,13 +416,12 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 			deleteForget(username)
 			var user User
 			user1 := user.QueryUser(username)
-
-			user1.contents["password"] = "1"
-			
+			newpwd := getNewPassword()
+			user1.contents["password"] = newpwd
 			if user1.update() {
-				fmt.Fprintf(w, "激活成功！")
+				fmt.Fprintf(w, "新密码:"+newpwd)
 			}else {
-				fmt.Fprintf(w, "激活失败！")
+				fmt.Fprintf(w, "获取密码失败！")
 			}
 			
 		}else{
@@ -436,15 +435,16 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 const chartable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-// func getNewPassword() string {
-	// r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	// ran1 := r.Intn(3) + 5
-	// for i:=0; i<ran1; i++ {
-		
-	// }
-	// ran3 := r.Intn(62)
+func getNewPassword() string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ran1 := r.Intn(3) + 5
+	var result string
+	for i:=0; i<ran1; i++ {
+		result = result + chartable[r.Intn(62)]
+	}
+	return result
 
-// }
+}
 
 const hextable = "0123456789abcdef"
 
