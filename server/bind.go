@@ -8,6 +8,11 @@ func bind() {
     mymux.HandleFunc("/user/active/", active)
     mymux.HandleFunc("/user/check_userid", checkUserid)
     mymux.HandleFunc("/user/logout", logout)
+    mymux.HandleFunc("/user/forget_password", forgetPassword)
+    mymux.HandleFunc("/user/set_password", setPassword)
+    mymux.HandleFunc("/user/set_profile", setProfile)
+    mymux.HandleFunc("/user/get_profile", getProfile)
+
 
 
     //plan bind

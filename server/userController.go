@@ -318,7 +318,6 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 			if matchSessionKey(key, userMap[username].sk){
 				var user User
 				user1 := user.QueryUser(username)
-
 				temp := []byte(oldpw)
 			    h := md5.New()
 			    h.Write([]byte(user1.contents["password"] + date))
@@ -363,6 +362,9 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		date := r.FormValue("date")
 		random := r.FormValue("random")
+		fmt.Println(username)
+		fmt.Println(date)
+		fmt.Println(random)
 		if !CheckAttack(username, date, random) {
 			var user User
 			user1 := user.QueryUser(username)
@@ -373,6 +375,10 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 
 				SendRegisterMail(username, mailAddress + "/user/reset_password/?username=" + username +
 					"&forgetkey=" + fk)
+				//user not exist
+				result := map[string]string{"status": "0", "key": "成功"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
 			}else{
 				//user not exist
 				result := map[string]string{"status": "2", "key": "用户名不存在"}
@@ -458,6 +464,9 @@ func HexEncodeEqual(dst, src []byte) bool {
 }
 
 func CheckAttack(username string, date string, str string) bool {
+	if username == "" || date =="" || str == "" {
+		return true
+	}
 	h := md5.New()
 	h.Write([]byte(username + "sirity"))
 	a := hex.EncodeToString(h.Sum(nil))
