@@ -12,6 +12,7 @@ func bind() {
     mymux.HandleFunc("/user/set_password", setPassword)
     mymux.HandleFunc("/user/set_profile", setProfile)
     mymux.HandleFunc("/user/get_profile", getProfile)
+    mymux.HandleFunc("/user/reset_password/", resetPassword)
 
 
 
