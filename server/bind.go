@@ -23,4 +23,11 @@ func bind() {
     mymux.HandleFunc("/like/content/toggle_like", toggleLike)
     mymux.HandleFunc("/like/content/fetch_like_number", fetchLikeNumber)
     mymux.HandleFunc("/like/content/do_i_like", doILike)
+
+
+    //comment bind
+    mymux.HandleFunc("/comment/fetch_comment_list", fetchCommentList)
+    mymux.HandleFunc("/comment/post_comment", postComment)
+    mymux.HandleFunc("/comment/delete_comment", deleteComment)
+
 }

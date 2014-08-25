@@ -8,7 +8,7 @@ import (
 )  
   
 func main() {  
-    httpPostRegister()
+    httpPostForget()
     // httpPostCheckId()
 } 
 
@@ -64,6 +64,23 @@ func httpPostRegister() {
 
 func httpPostCheckId() {
     resp, err := http.PostForm("http://192.168.1.126:1280/user/check_userid",
+        url.Values{"username": {"printfldl@gmail.com"}, "password": {"a670925a0a51e179f1343e8deb46dff7"}, "date": {"1408436324.152133"}, 
+        "random": {"b9400c6b955e86e3012f07a6bb06dd0a866f8f31b3bc773c9f1912a9c588fed7"}})
+    if err != nil {
+        fmt.Println(err)
+    }
+ 
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        // handle error
+    }
+
+    fmt.Println(string(body))
+}
+
+func httpPostForget() {
+    resp, err := http.PostForm("http://121.40.94.51:1280/user/forget_password",
         url.Values{"username": {"printfldl@gmail.com"}, "password": {"a670925a0a51e179f1343e8deb46dff7"}, "date": {"1408436324.152133"}, 
         "random": {"b9400c6b955e86e3012f07a6bb06dd0a866f8f31b3bc773c9f1912a9c588fed7"}})
     if err != nil {

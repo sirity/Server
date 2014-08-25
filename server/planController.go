@@ -204,7 +204,7 @@ func doILike(w http.ResponseWriter, r *http.Request) {
 		// username := r.FormValue("username")
 		// sk := r.FormValue("key")
 		// contentId := r.FormValue("content_id")
-
+		
 		result := map[string]string{"status": "0", "result": "成功"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
