@@ -8,10 +8,28 @@ import (
 )  
   
 func main() {  
-    httpPostForget()
+    httpPostProfile()
     // httpPostCheckId()
 } 
 
+func httpPostProfile() {
+    resp, err := http.PostForm("http://127.0.0.1:1280/user/set_profile",
+        url.Values{"username": {"printfldl@gmail.com"}, "key": {"a670925a0a51e179f1343e8deb46dff7"}, "profile": {`{
+  "gender" : "1",
+  "nickname" : "123",
+  "birthday" : "2014-08-26", "interest" : ["sports","architect"]}`}})
+    if err != nil {
+        fmt.Println(err)
+    }
+ 
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        // handle error
+    }
+
+    fmt.Println(string(body))
+}
 
 func httpPostLogin() {
     resp, err := http.PostForm("http://121.40.94.51:1280/user/login",

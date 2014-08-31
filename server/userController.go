@@ -234,6 +234,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 					"interest": user1.contents["interest"],
 				}
 				strResult,_ := json.Marshal(result)
+				fmt.Println("profile" + string(strResult))
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
@@ -260,18 +261,23 @@ func setProfile(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		key := r.FormValue("key")
 		profile := r.FormValue("profile")
+		fmt.Println("profile"+profile)
 		if userMap[username].sk!= "" {
 			if matchSessionKey(key, userMap[username].sk){
 				var user User
 				user1 := user.QueryUser(username)
-				var dat map[string]string
+				var dat map[string]interface{}
 				if err := json.Unmarshal([]byte(profile), &dat); err != nil {
         			panic(err)
     			}
-    			user1.contents["nickname"] = dat["nickname"]
-    			user1.contents["gender"] = dat["gender"]
-    			user1.contents["birthday"] = dat["birthday"]
-    			user1.contents["interest"] = dat["interest"]
+    			fmt.Println(dat)
+    			user1.contents["nickname"] = dat["nickname"].(string)
+    			user1.contents["gender"] = dat["gender"].(string)
+    			user1.contents["birthday"] = dat["birthday"].(string)
+    			tempStr, _ := json.Marshal(dat["interest"])
+    			
+    			user1.contents["interest"] =  string(tempStr)
+    			fmt.Println("nickname" + user1.contents["interest"])
 				
 				if user1.update() {
 					result := map[string]string{"status": "0", "result": "修改成功"}
@@ -323,6 +329,7 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 			    h.Write([]byte(user1.contents["password"] + date))
 				if HexEncodeEqual(temp, h.Sum(nil)) {
 					user1.contents["password"] = newpw
+					fmt.Println("pass" + user1.contents["password"])
 					if user1.update() {
 						result := map[string]string{"status": "0", "result": "修改成功"}
 						strResult,_ := json.Marshal(result)
@@ -497,10 +504,12 @@ func SessionKey(username string) string {
 }
 
 func matchSessionKey(key, sk string) bool {
-	str := SubString(key, 0, 63)
+	fmt.Println(key)
+	fmt.Println(sk)
+	str := SubString(key, 0, 32)
 	rs := []rune(key)  
 	lth := len(rs)
-	str1 := "sessionkey:sirity" + sk + SubString(key, 63, lth-1) + "time" 
+	str1 := "sessionkey:sirity" + sk + SubString(key, 32, lth-1) + "time" 
 
 	h := md5.New()
 	h.Write([]byte(str1))
