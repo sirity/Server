@@ -258,9 +258,7 @@ func (user *User) update() bool {
     }else {
         index = user.contents["id"]
     }
-    fmt.Println("update" + user.contents["interest"])
-    fmt.Println("update" + user.contents["nickname"])
-    fmt.Println("update" + user.contents["gender"])
+    
     _, err = stmt.Exec(user.contents["username"], user.contents["nickname"],
         user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
         t, user.contents["status"], user.contents["interest"], index)
@@ -271,13 +269,6 @@ func (user *User) update() bool {
         return false
     }
     return true
-}
-
-func checkErr(err error) {
-    if err != nil {
-    	log.Println(err)
-        panic(err)
-    }
 }
 
 

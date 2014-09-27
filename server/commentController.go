@@ -88,3 +88,54 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(strResult))
 	}
 }
+
+func commentToggleLike(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		// username := r.FormValue("username")
+		// sk := r.FormValue("key")
+		// contentId := r.FormValue("content_id")
+
+		result := map[string]string{"status": "0", "result": "成功"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}else{
+		//network wrong
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+func commentFetchLikeNumber(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		// username := r.FormValue("username")
+		// sk := r.FormValue("key")
+		// contentId := r.FormValue("content_id")
+
+		result := map[string]string{"status": "0", "number": "233"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}else{
+		//network wrong
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+func commentDoILike(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		// username := r.FormValue("username")
+		// sk := r.FormValue("key")
+		// contentId := r.FormValue("content_id")
+		
+		result := map[string]string{"status": "0", "result": "成功"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}else{
+		//network wrong
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
