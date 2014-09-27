@@ -8,7 +8,7 @@ import (
 
 var mymux *http.ServeMux
 const (
-    mailAddress string = "http://121.40.94.51:1280"
+    mailAddress string = "http://121.40.190.238:1280"
 )
 
 func Run() {
