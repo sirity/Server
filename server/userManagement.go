@@ -5,6 +5,7 @@ import (
 )
 
 type UserPie struct {
+	userId string
 	sk string
 	interest string
 	date string
@@ -20,8 +21,8 @@ func ManageInit(){
 	userForget = make(map[string]string)
 }
 
-func addUser(username string, sk string, interest string, date string) {
-	userMap[username] = UserPie{sk:sk, interest:interest, date:date}
+func addUser(username string, userId string, sk string, interest string, date string) {
+	userMap[username] = UserPie{userId:userId, sk:sk, interest:interest, date:date}
 }
 
 func logOut(username string) {

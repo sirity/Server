@@ -29,7 +29,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 				if HexEncodeEqual(temp, h.Sum(nil)) {
 					//login success
 					sk := SessionKey(username)
-					addUser(username, sk, user1.contents["interest"], date)
+					addUser(username, user1.contents["id"], sk, user1.contents["interest"], date)
 					result := map[string]string{"status": "0", "key": sk}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
@@ -85,7 +85,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 				if(user.insert()){
 					//insert success
 					sk := SessionKey(username)
-					addUser(username, sk, user1.contents["interest"], date)
+					//TO-DO bugs
+					addUser(username, user.contents["id"], sk, user1.contents["interest"], date)
 
 					ak := activeKey(username, date, random)
 					addHung(username, ak)
@@ -223,14 +224,13 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 			if matchSessionKey(key, userMap[username].sk){
 				var user User
 				user1 := user.QueryUser(username)
-
 				result := map[string]string{"status": "0", 
 					"username": user1.contents["username"],
 					"nickname": user1.contents["nickname"],
 					"portrait_url": user1.contents["portrait_url"],
-					"gender": user1.contents["gender"], 
+					"gender": user1.contents["gender"],
 					"birthday": user1.contents["birthday"],
-					"state": user1.contents["status"], 
+					"state": user1.contents["status"],
 					"interest": user1.contents["interest"],
 				}
 				strResult,_ := json.Marshal(result)

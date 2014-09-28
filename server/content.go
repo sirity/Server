@@ -15,6 +15,7 @@ func (content *Content) Init() {
 	content.contents = make(map[string]string)
 	content.contents["id"] = ""
 	content.contents["type"] = ""
+    content.contents["mode"] = ""
 	content.contents["title"] = ""
 	content.contents["summary"] = ""
 	content.contents["cover_url"] = ""
@@ -145,9 +146,9 @@ func (content Content) QueryId(id int) Content {
 
 
 func (content *Content) insert() bool {
-	stmt, err := db.Prepare("INSERT INTO " + contentTable + " (id, type, title, summary, cover_url, author," + 
+	stmt, err := db.Prepare("INSERT INTO " + contentTable + " (id, type, mode, title, summary, cover_url, author," + 
         " link, source, content, tags, like_num, rates, rates_people, date, due_date)" + 
-		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	defer stmt.Close()
 	checkErr(err)
     var tempDate interface{}
@@ -181,7 +182,7 @@ func (content *Content) insert() bool {
         index = content.contents["id"]
     }
 
-	_, err = stmt.Exec(index, content.contents["type"], content.contents["title"], 
+	_, err = stmt.Exec(index, content.contents["type"], content.contents["mode"], content.contents["title"], 
         content.contents["summary"], content.contents["cover_url"], content.contents["author"], content.contents["link"],
         content.contents["source"], content.contents["content"], content.contents["tags"], content.contents["like_num"],
         content.contents["rates"], content.contents["rates_people"], tempDate, tempDueDate,)
@@ -202,7 +203,7 @@ func (content *Content) delete(){
 }
 
 func (content *Content) update() bool {
-	stmt, err := db.Prepare("update content set type=?, title=?, summary=?, cover_url=?, author=?, " +
+	stmt, err := db.Prepare("update content set type=?, mode=?, title=?, summary=?, cover_url=?, author=?, " +
 		"link=?, source=?, content=?, tags=?, like_num=?, rates=?, rates_people=?, date=?, due_date=? where id = ?")
     checkErr(err)
 
@@ -237,7 +238,7 @@ func (content *Content) update() bool {
         index = content.contents["id"]
     }
 
-    _, err = stmt.Exec(content.contents["type"], content.contents["title"], content.contents["summary"],
+    _, err = stmt.Exec(content.contents["type"], content.contents["mode"], content.contents["title"], content.contents["summary"],
         content.contents["cover_url"], content.contents["author"], content.contents["link"], content.contents["source"],
         content.contents["content"], content.contents["tags"], content.contents["like_num"], content.contents["rates"],
         content.contents["rates_people"], tempDate, tempDueDate, index)
