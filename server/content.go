@@ -90,7 +90,67 @@ func (content Content) QueryAll() map[int] *Content {
     return result
 }
 
-func (content Content) QueryId(id int) Content {
+func (content Content) QueryRandom() map[int] *Content {
+
+    // Execute the query
+    rows, err := db.Query("SELECT * FROM " + contentTable + "AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `table`)-(SELECT MIN(id) FROM `table`))+(SELECT MIN(id) FROM `table`)) AS id) AS t2" + 
+        "WHERE t1.id >= t2.id" + "ORDER BY t1.id LIMIT 7")
+    if err != nil {
+        panic(err.Error()) // proper error handling instead of panic in your app
+    }
+
+    // Get column names
+    columns, err := rows.Columns()
+    if err != nil {
+        panic(err.Error()) // proper error handling instead of panic in your app
+    }
+
+    // Make a slice for the values
+    values := make([]sql.RawBytes, len(columns))
+
+    // rows.Scan wants '[]interface{}' as an argument, so we must copy the
+    // references into such a slice
+    // See http://code.google.com/p/go-wiki/wiki/InterfaceSlice for details
+    scanArgs := make([]interface{}, len(values))
+    for i := range values {
+        scanArgs[i] = &values[i]
+    }
+
+    var result map[int] *Content
+    result = make(map[int] *Content)
+    var index int
+    index = 0
+    // Fetch rows
+    for rows.Next() {
+        // get RawBytes from data
+        err = rows.Scan(scanArgs...)
+        if err != nil {
+            panic(err.Error()) // proper error handling instead of panic in your app
+        }
+
+        // Now do something with the data.
+        // Here we just print each column as a string.
+        var value string
+        var content Content
+        content.Init()
+        for i, col := range values {
+            // Here we can check if the value is nil (NULL value)
+            if col == nil {
+                value = ""
+            } else {
+                value = string(col)
+            }
+            // fmt.Println(columns[i], ": ", value)
+            content.contents[columns[i]] = value
+        }
+        // fmt.Println("-----------------------------------")
+        result[index] = &content
+        index = index + 1
+    }
+    return result
+}
+
+func (content Content) QueryId(id string) *Content {
 
     // Execute the query
     rows, err := db.Query("SELECT * FROM " + contentTable + " where id = ? ", id)
@@ -141,11 +201,11 @@ func (content Content) QueryId(id int) Content {
         // fmt.Println("-----------------------------------")
         index = index + 1
     }
-    return temp
+    return &temp
 }
 
 
-func (content *Content) insert() bool {
+func (content *Content) Insert() bool {
 	stmt, err := db.Prepare("INSERT INTO " + contentTable + " (id, type, mode, title, summary, cover_url, author," + 
         " link, source, content, tags, like_num, rates, rates_people, date, due_date)" + 
 		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -155,7 +215,7 @@ func (content *Content) insert() bool {
     if content.contents["date"] == "" ||  content.contents["date"] == "NULL"{
 
     }else{
-        t1, err := time.Parse("2006-01-02", content.contents["date"])
+        t1, err := time.Parse("2006-01-02 15:04:05", content.contents["date"])
         if err != nil {
             fmt.Println(err)
             return false
@@ -167,7 +227,7 @@ func (content *Content) insert() bool {
     if content.contents["due_date"] == "" ||  content.contents["due_date"] == "NULL"{
 
     }else{
-        t1, err := time.Parse("2006-01-02", content.contents["due_date"])
+        t1, err := time.Parse("2006-01-02 15:04:05", content.contents["due_date"])
         if err != nil {
             fmt.Println(err)
             return false
@@ -211,7 +271,7 @@ func (content *Content) update() bool {
     if content.contents["date"] == "" ||  content.contents["date"] == "NULL"{
 
     }else{
-        t1, err := time.Parse("2006-01-02", content.contents["date"])
+        t1, err := time.Parse("2006-01-02 15:04:05", content.contents["date"])
         if err != nil {
             fmt.Println(err)
             return false
@@ -223,7 +283,7 @@ func (content *Content) update() bool {
     if content.contents["due_date"] == "" ||  content.contents["due_date"] == "NULL"{
 
     }else{
-        t1, err := time.Parse("2006-01-02", content.contents["due_date"])
+        t1, err := time.Parse("2006-01-02 15:04:05", content.contents["due_date"])
         if err != nil {
             fmt.Println(err)
             return false
