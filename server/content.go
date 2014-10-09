@@ -311,4 +311,23 @@ func (content *Content) update() bool {
     return true
 }
 
+func (content *Content) SetValue(tempType, mode, title, summary, coverUrl,
+     author, link, source, tempContent, tags, likeNum, rates, ratesPeople, tempDate, dueDate string) {
+    content.contents["type"] = tempType
+    content.contents["mode"] = mode
+    content.contents["title"] = title
+    content.contents["summary"] = summary
+    content.contents["cover_url"] = coverUrl
+    content.contents["author"] = author
+    content.contents["link"] = link
+    content.contents["source"] = source
+    content.contents["content"] = tempContent
+    content.contents["tags"] = tags
+    content.contents["like_num"] = likeNum
+    content.contents["rates"] = rates
+    content.contents["rates_people"] = ratesPeople
+    content.contents["date"] = tempDate
+    content.contents["due_date"] = dueDate
+}
+
 

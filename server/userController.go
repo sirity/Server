@@ -536,7 +536,7 @@ func SubString(str string,begin,length int) (substr string) {
 	end = lth   
 	}
 	// 返回子串  
-	return string(rs[begin:end])  
+	return string(rs[begin:end])
 }  
 
 /*

@@ -8,6 +8,10 @@ import (
 	analyzer "grabContent/Cluster"
 )
 
+const (
+	UserLovePara float64 = 0.75 
+)
+
 func fetchPlan(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		username := r.FormValue("username")
@@ -24,23 +28,23 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 					tempContents := content.QueryRandom()
 					for _, value := range tempContents {
 						if !checkContentRepeat(value.contents["id"], contentArr) {
-							
-							analyzer.GetInterestDegree(userInterests, stringToInterest(value.contents["tags"]))
-							tempContent := map[string]interface{}{
-							"content_id":value.contents["id"], 
-							"title":value.contents["summary"],
-							"summary":value.contents["summary"],
-							"type": value.contents["type"],
-							"cover_url":value.contents["cover_url"],
-							"link":value.contents["link"],
-							"author":value.contents["author"],
-							"source":value.contents["source"],
-							"tags":value.contents["tags"],
-							"rates":value.contents["rates"],
-							"like_num":value.contents["like_num"],
-							"date" : value.contents["date"]}
-							infolist = append(infolist, tempContent)
-							contentArr = append(contentArr, value.contents["id"])
+							if analyzer.GetInterestDegree(userInterests, stringToInterest(value.contents["tags"])) > UserLovePara {
+								tempContent := map[string]interface{}{
+								"content_id":value.contents["id"], 
+								"title":value.contents["summary"],
+								"summary":value.contents["summary"],
+								"type": value.contents["type"],
+								"cover_url":value.contents["cover_url"],
+								"link":value.contents["link"],
+								"author":value.contents["author"],
+								"source":value.contents["source"],
+								"tags":value.contents["tags"],
+								"rates":value.contents["rates"],
+								"like_num":value.contents["like_num"],
+								"date" : value.contents["date"]}
+								infolist = append(infolist, tempContent)
+								contentArr = append(contentArr, value.contents["id"])
+							} 
 						}	
 					}	
 				}
@@ -62,6 +66,27 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 	}else{
 		//network wrong
 		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+
+func feedBack (w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		// username := r.FormValue("username")
+		// sk := r.FormValue("key")
+		// contentId := r.FormValue("content_id")
+		// user
+
+
+
+		result := map[string]string{"status": "0", "content": "是开发商副科级萨姆索诺夫马上飞，赛诺菲开始放假了书法家索科洛夫健康的快递师傅就开始地方就开始力"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}else{
+		//network wrong
+		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
