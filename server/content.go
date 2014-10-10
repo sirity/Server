@@ -206,6 +206,15 @@ func (content Content) QueryId(id string) *Content {
 
 
 func (content *Content) Insert() bool {
+    exist_con:=content.QueryAll()
+   
+    for _, con := range exist_con {
+        if content.contents["link"] == con.contents["link"] {
+          fmt.Println("link: ",con.contents["link"], "has existed")
+           return false
+        }
+    }
+    
 	stmt, err := db.Prepare("INSERT INTO " + contentTable + " (id, type, mode, title, summary, cover_url, author," + 
         " link, source, content, tags, like_num, rates, rates_people, date, due_date)" + 
 		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -315,6 +324,7 @@ func (content *Content) SetValue(tempType, mode, title, summary, coverUrl,
      author, link, source, tempContent, tags, likeNum, rates, ratesPeople, tempDate, dueDate string) {
     content.contents["type"] = tempType
     content.contents["mode"] = mode
+    fmt.Println("mode: ",mode)
     content.contents["title"] = title
     content.contents["summary"] = summary
     content.contents["cover_url"] = coverUrl
