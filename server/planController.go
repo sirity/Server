@@ -74,11 +74,37 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 
 func feedBack (w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
-		// username := r.FormValue("username")
-		// sk := r.FormValue("key")
-		// contentId := r.FormValue("content_id")
-		// user
+		username := r.FormValue("username")
+		sk := r.FormValue("key")
+		contentId := r.FormValue("content_id")
+		// userFeedBack := r.FormValue("user_feedback")
+		if userMap[username].sk!= "" {
+			if matchSessionKey(sk, userMap[username].sk){
+				var content Content
+				content.Init()
+				content.QueryId(contentId)
+				// userInterests := stringToInterest(userMap[username].interest)
+				// logisticOutput := analyzer.GetInterestDegree(userInterests, stringToInterest(content.contents["tags"]))
+				// userInterests := stringToInterest(userMap[username].interest)
+				// contentTags := stringToInterest(content.contents["tags"])
+				// for key,value := range userInterests {
 
+				// }
+				// result := map[string]interface{}{"status": 0, "info_list": infolist}
+				// strResult,_ := json.Marshal(result)
+				// fmt.Fprintf(w, string(strResult))
+			}else {
+				//key not right
+				result := map[string]string{"status": "1", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		}else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
 
 
 		result := map[string]string{"status": "0", "content": "是开发商副科级萨姆索诺夫马上飞，赛诺菲开始放假了书法家索科洛夫健康的快递师傅就开始地方就开始力"}

@@ -18,14 +18,15 @@ func TestQueryContent(t *testing.T){
     }
 }
 
-// func TestInsertContent(t *testing.T){
-// 	Init()
-// 	var content Content
-//    	content.Init()
-//    	content.contents["type"] = "3"
-//    	content.contents["title"] = "testinsert"
-//    	content.insert()
-// }
+func TestInsertContent(t *testing.T){
+	Init()
+	var content Content
+   	content.Init()
+   	content.contents["type"] = "3"
+   	content.contents["title"] = "testinsertaaaaaa"
+    content.contents["mode"] = "128"
+   	content.Insert()
+}
 
 // func TestUpdateContent(t *testing.T){
 // 	Init()

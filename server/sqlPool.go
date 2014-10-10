@@ -16,6 +16,9 @@ const (
 	favorTable string = "favor"
 	likeCommentTable string = "likeComment"
 	likeContentTable string = "likeContent"
+    interestCategoryTable string = "interestCategory"
+    interestListTable string = "interestList"
+
 )
 
 func Init(){
