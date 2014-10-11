@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"encoding/json"
 	"time"
+	"strconv"
 	analyzer "grabContent/Cluster"
 )
 
 const (
-	UserLovePara float64 = 0.75 
+	UserLovePara float64 = 0
 )
 
 func fetchPlan(w http.ResponseWriter, r *http.Request) {
@@ -17,9 +18,11 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		sk := r.FormValue("key")
 		// config := r.FormValue("config")
+		fmt.Println("connet" + username)
 
 		if userMap[username].sk!= "" {
 			if matchSessionKey(sk, userMap[username].sk){
+				fmt.Println("connet  succe....." )
 				var content Content
 				var infolist = make([]interface{}, 0, 10)
 				var contentArr = make([]string, 0, 10)
@@ -28,10 +31,25 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 					tempContents := content.QueryRandom()
 					for _, value := range tempContents {
 						if !checkContentRepeat(value.contents["id"], contentArr) {
-							if analyzer.GetInterestDegree(userInterests, stringToInterest(value.contents["tags"])) > UserLovePara {
+							logistic, _ := analyzer.GetInterestDegree(userInterests, stringToInterest(value.contents["tags"]))
+							if logistic > UserLovePara {
+								var doILike string
+								var doIFavor string
+								var likeContent LikeContent
+								var favor Favor
+								if likeContent.QueryLikeContent(userMap[username].userId, value.contents["id"]) != nil {
+									doILike = "1"
+								}else{
+									doILike = "0"
+								}
+								if favor.QueryFavor(userMap[username].userId, value.contents["id"]) != nil {
+									doIFavor = "1"
+								}else {
+									doIFavor = "0"
+								}
 								tempContent := map[string]interface{}{
 								"content_id":value.contents["id"], 
-								"title":value.contents["summary"],
+								"title":value.contents["title"],
 								"summary":value.contents["summary"],
 								"type": value.contents["type"],
 								"cover_url":value.contents["cover_url"],
@@ -41,6 +59,8 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 								"tags":value.contents["tags"],
 								"rates":value.contents["rates"],
 								"like_num":value.contents["like_num"],
+								"do_i_like": doILike,
+								"do_i_favor": doIFavor, 
 								"date" : value.contents["date"]}
 								infolist = append(infolist, tempContent)
 								contentArr = append(contentArr, value.contents["id"])
@@ -48,17 +68,20 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 						}	
 					}	
 				}
+				fmt.Println("connet  succe" )
 				result := map[string]interface{}{"status": 0, "info_list": infolist}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
+				fmt.Println("connet  succe1" )
 				result := map[string]string{"status": "1", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else {
 			// no login or server down
+			fmt.Println("connet  succe2" )
 			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
@@ -77,22 +100,31 @@ func feedBack (w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		sk := r.FormValue("key")
 		contentId := r.FormValue("content_id")
-		// userFeedBack := r.FormValue("user_feedback")
+		userFeedBack := r.FormValue("user_feedback")
 		if userMap[username].sk!= "" {
 			if matchSessionKey(sk, userMap[username].sk){
 				var content Content
 				content.Init()
 				content.QueryId(contentId)
-				// userInterests := stringToInterest(userMap[username].interest)
-				// logisticOutput := analyzer.GetInterestDegree(userInterests, stringToInterest(content.contents["tags"]))
-				// userInterests := stringToInterest(userMap[username].interest)
-				// contentTags := stringToInterest(content.contents["tags"])
-				// for key,value := range userInterests {
+				userInterests := stringToInterest(userMap[username].interest)
+				logisticOutput, net := analyzer.GetInterestDegree(userInterests, stringToInterest(content.contents["tags"]))
+				contentTags := stringToInterest(content.contents["tags"])
 
-				// }
-				// result := map[string]interface{}{"status": 0, "info_list": infolist}
-				// strResult,_ := json.Marshal(result)
-				// fmt.Fprintf(w, string(strResult))
+				for key1,value1 := range userInterests {
+					var total float64
+					total = 0
+					for key2, value2 := range contentTags {
+						total = total + analyzer.GetSrity(key1, key2) * float64(value1) * float64(value2)
+					}
+					tempFeedback,_ := strconv.ParseFloat(userFeedBack, 64)
+					tempDelta := analyzer.Delta(tempFeedback, logisticOutput, total, net)
+					userInterests[key1] = userInterests[key1] + float32(tempDelta)
+				}
+				addUser(username, userMap[username].userId, userMap[username].sk, 
+					interestToString(userInterests), userMap[username].date)
+				result := map[string]interface{}{"status": 0, "result": "反馈成功"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
 				result := map[string]string{"status": "1", "result": "访问失效"}
@@ -106,13 +138,9 @@ func feedBack (w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, string(strResult))
 		}
 
-
-		result := map[string]string{"status": "0", "content": "是开发商副科级萨姆索诺夫马上飞，赛诺菲开始放假了书法家索科洛夫健康的快递师傅就开始地方就开始力"}
-		strResult,_ := json.Marshal(result)
-		fmt.Fprintf(w, string(strResult))
 	}else{
 		//network wrong
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -143,6 +171,10 @@ func interestToString(interest map[string] float32) string {
 */
 func stringToInterest(str string) map[string] float32 {
 	var dat map[string] float32
+	fmt.Println("user interest" + str)
+	if (str == "" || len(str)==0){
+		return nil
+	}
 	if err := json.Unmarshal([]byte(str), &dat); err != nil {
         panic(err)
     }

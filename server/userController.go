@@ -186,6 +186,7 @@ func checkUserid(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//TODO log out and save the user state
 func logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		username := r.FormValue("username")
@@ -520,7 +521,7 @@ func matchSessionKey(key, sk string) bool {
 	}
 }
 
-func SubString(str string,begin,length int) (substr string) {  
+func SubString(str string,begin,length int) (substr string) { 
 	// 将字符串的转换成[]rune  
 	rs := []rune(str)  
 	lth := len(rs)

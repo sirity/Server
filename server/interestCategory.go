@@ -4,7 +4,6 @@ import (
     "database/sql"
     "fmt"
     "log"
-    "time"
 )
 
 type InterestCategory struct {
@@ -13,9 +12,9 @@ type InterestCategory struct {
 
 func (interestCategory *InterestCategory) Init() {
     interestCategory.contents = make(map[string]string)
-    interestCategory.contents["user_id"] = ""
-    interestCategory.contents["content_id"] = ""
-    interestCategory.contents["date"] = ""
+    interestCategory.contents["id"] = ""
+    interestCategory.contents["name"] = ""
+    interestCategory.contents["pic"] = ""
 }
 
 func (interestCategory InterestCategory) QueryAll() map[int] *InterestCategory {
@@ -77,68 +76,10 @@ func (interestCategory InterestCategory) QueryAll() map[int] *InterestCategory {
     return result
 }
 
-func (interestCategory InterestCategory) QueryUserId(userId int) map[int] *InterestCategory {
+func (interestCategory InterestCategory) QueryInterestCategory(categoryId string) *InterestCategory {
 
     // Execute the query
-    rows, err := db.Query("SELECT * FROM " + interestCategoryTable + " where user_id = ? ", userId)
-    if err != nil {
-        panic(err.Error()) // proper error handling instead of panic in your app
-    }
-
-    // Get column names
-    columns, err := rows.Columns()
-    if err != nil {
-        panic(err.Error()) // proper error handling instead of panic in your app
-    }
-
-    // Make a slice for the values
-    values := make([]sql.RawBytes, len(columns))
-
-    // rows.Scan wants '[]interface{}' as an argument, so we must copy the
-    // references into such a slice
-    // See http://code.google.com/p/go-wiki/wiki/InterfaceSlice for details
-    scanArgs := make([]interface{}, len(values))
-    for i := range values {
-        scanArgs[i] = &values[i]
-    }
-
-    var result map[int] *InterestCategory
-    result = make(map[int] *InterestCategory)
-    index := 0
-    // Fetch rows
-    for rows.Next() {
-        // get RawBytes from data
-        err = rows.Scan(scanArgs...)
-        if err != nil {
-            panic(err.Error()) // proper error handling instead of panic in your app
-        }
-
-        // Now do something with the data.
-        // Here we just print each column as a string.
-        var value string
-        var temp InterestCategory
-        temp.Init()
-        for i, col := range values {
-            // Here we can check if the value is nil (NULL value)
-            if col == nil {
-                value = ""
-            } else {
-                value = string(col)
-            }
-            // fmt.Println(columns[i], ": ", value)
-            temp.contents[columns[i]] = value
-        }
-        // fmt.Println("-----------------------------------")
-        result[index] = &temp
-        index = index + 1
-    }
-    return result
-}
-
-func (interestCategory InterestCategory) QueryInterestCategory(userId, contentId string) *InterestCategory {
-
-    // Execute the query
-    rows, err := db.Query("SELECT * FROM " + interestCategoryTable + " where user_id = ? AND content_id = ?", userId, contentId)
+    rows, err := db.Query("SELECT * FROM " + interestCategoryTable + " where id = ? ", categoryId)
     if err != nil {
         panic(err.Error()) // proper error handling instead of panic in your app
     }
@@ -191,23 +132,19 @@ func (interestCategory InterestCategory) QueryInterestCategory(userId, contentId
 }
 
 func (interestCategory *InterestCategory) insert() bool {
-    stmt, err := db.Prepare("INSERT INTO interestCategory (user_id, content_id, date)" + 
+    stmt, err := db.Prepare("INSERT INTO interestCategory (id, name, pic)" + 
         " VALUES(?, ?, ?)")
     defer stmt.Close()
     checkErr(err)
-    var tempDate interface{}
-    if interestCategory.contents["date"] == "" ||  interestCategory.contents["date"] == "NULL"{
 
-    }else{
-        t1, err := time.Parse("2006-01-02 15:04:05", interestCategory.contents["date"])
-        if err != nil {
-            fmt.Println(err)
-            return false
-        }
-        tempDate = t1
+    var index interface {}
+    if interestCategory.contents["id"] == "" || interestCategory.contents["id"] == "NULL" {
+
+    }else {
+        index = interestCategory.contents["id"]
     }
 
-    _, err = stmt.Exec(interestCategory.contents["user_id"], interestCategory.contents["content_id"], tempDate)
+    _, err = stmt.Exec(index, interestCategory.contents["name"], interestCategory.contents["pic"])
     if err != nil {
         fmt.Println(err)
         return false
@@ -217,7 +154,7 @@ func (interestCategory *InterestCategory) insert() bool {
 }
 
 func (interestCategory *InterestCategory) delete() bool {
-    result, err := db.Exec("DELETE FROM interestCategory where user_id = ? AND content_id = ?", interestCategory.contents["user_id"], interestCategory.contents["content_id"])
+    result, err := db.Exec("DELETE FROM interestCategory where id = ?", interestCategory.contents["id"])
     affectedId,_ := result.RowsAffected()
     if err != nil {
         log.Println(err)
@@ -230,22 +167,18 @@ func (interestCategory *InterestCategory) delete() bool {
 }
 
 func (interestCategory *InterestCategory) update() bool {
-    stmt, err := db.Prepare("update interestCategory set date=? " +
-        " where user_id = ? AND content_id=?")
+    stmt, err := db.Prepare("update interestCategory set name=?, pic=? " +
+        " where id = ?")
     checkErr(err)
-    var tempDate interface{}
-    if interestCategory.contents["date"] == "" ||  interestCategory.contents["date"] == "NULL"{
 
-    }else{
-        t1, err := time.Parse("2006-01-02 15:04:05", interestCategory.contents["date"])
-        if err != nil {
-            fmt.Println(err)
-            return false
-        }
-        tempDate = t1
+    var index interface {}
+    if interestCategory.contents["id"] == "" || interestCategory.contents["id"] == "NULL" {
+
+    }else {
+        index = interestCategory.contents["id"]
     }
     
-    _, err = stmt.Exec(tempDate, interestCategory.contents["user_id"], interestCategory.contents["content_id"])
+    _, err = stmt.Exec(interestCategory.contents["name"], interestCategory.contents["pic"], index)
 
     checkErr(err)
     if err != nil {

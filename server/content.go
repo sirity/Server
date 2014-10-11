@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+    "strconv"
 )
 
 type Content struct {
@@ -93,8 +94,11 @@ func (content Content) QueryAll() map[int] *Content {
 func (content Content) QueryRandom() map[int] *Content {
 
     // Execute the query
-    rows, err := db.Query("SELECT * FROM " + contentTable + "AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `table`)-(SELECT MIN(id) FROM `table`))+(SELECT MIN(id) FROM `table`)) AS id) AS t2" + 
-        "WHERE t1.id >= t2.id" + "ORDER BY t1.id LIMIT 7")
+    // rows, err := db.Query("SELECT * FROM " + contentTable + "AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `table`)-(SELECT MIN(id) FROM `table`))+(SELECT MIN(id) FROM `table`)) AS id) AS t2" + 
+    //     "WHERE t1.id >= t2.id" + "ORDER BY t1.id LIMIT 7")
+    rows, err := db.Query("SELECT * FROM " + contentTable + " AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `content`)-(SELECT MIN(id) FROM `content`))+(SELECT MIN(id) FROM `content`)) AS id) AS t2 " + 
+        " WHERE t1.id >= t2.id " +
+        " ORDER BY t1.id LIMIT 7")
     if err != nil {
         panic(err.Error()) // proper error handling instead of panic in your app
     }
@@ -140,8 +144,21 @@ func (content Content) QueryRandom() map[int] *Content {
             } else {
                 value = string(col)
             }
-            // fmt.Println(columns[i], ": ", value)
-            content.contents[columns[i]] = value
+            
+            //remove the small id from the new content orders
+            if columns[i] == "id" {
+                if content.contents[columns[i]] != "" {
+                    tempLast,_ := strconv.ParseInt(content.contents[columns[i]], 10, 32)
+                    tempNow,_ := strconv.ParseInt(value, 10, 32)
+                    if tempNow > tempLast {
+                        content.contents[columns[i]] = value
+                    }
+                }else{
+                    content.contents[columns[i]] = value
+                }
+            }else{
+                content.contents[columns[i]] = value
+            }
         }
         // fmt.Println("-----------------------------------")
         result[index] = &content
@@ -210,7 +227,7 @@ func (content *Content) Insert() bool {
    
     for _, con := range exist_con {
         if content.contents["link"] == con.contents["link"] {
-          fmt.Println("link: ",con.contents["link"], "has existed")
+           fmt.Println("link: ",con.contents["link"], "has existed")
            return false
         }
     }

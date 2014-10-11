@@ -30,8 +30,9 @@ func fetchCommentList(w http.ResponseWriter, r *http.Request) {
 						"like_num": value.contents["like_num"]}
 						infolist = append(infolist, tempComment)
 				}
-				result := map[string]interface{}{"status": 0, "info_list": infolist}
+				result := map[string]interface{}{"status": 0, "comment_list": infolist}
 				strResult,_ := json.Marshal(result)
+				fmt.Println("comment_list:" + string(strResult))
 				fmt.Fprintf(w, string(strResult))
 			}else{
 				//key not right
@@ -59,27 +60,38 @@ func postComment(w http.ResponseWriter, r *http.Request) {
 		key := r.FormValue("key")
 		contentId := r.FormValue("content_id")
 		commentStr := r.FormValue("comment")
+		fmt.Println("commentId" + contentId)
+		fmt.Println("comment" + commentStr)
 
 		if userMap[username].sk!= "" {
 			if matchSessionKey(key, userMap[username].sk){
 				var comment Comment
 				comment.Init()
 				var dat map[string] string
-				if err := json.Unmarshal([]byte(commentStr), &dat); err != nil {
-			        panic(err)
-			        result := map[string]interface{}{"status": 0, "result": "成功"}
-			        strResult,_ := json.Marshal(result)
-			        fmt.Fprintf(w, string(strResult))
-			    }else{
-			    	comment.contents["content_id"] = contentId
+				err := json.Unmarshal([]byte(commentStr), &dat);
+				if  err == nil {
+					comment.contents["content_id"] = contentId
 			    	comment.contents["user_id"] = userMap[username].userId
 			    	comment.contents["to_comment_id"] = dat["to_comment_id"]
 			    	comment.contents["body"] = dat["body"]
 			    	comment.contents["date"] = dat["date"]
 			    	comment.contents["like_num"] = "0"
-			    	result := map[string]interface{}{"status": 1, "result": "失败"}
-			    	strResult,_ := json.Marshal(result)
-			    	fmt.Fprintf(w, string(strResult))
+			    	if comment.insert() {
+			    		result := map[string]interface{}{"status": 0, "result": "成功"}
+			    		strResult,_ := json.Marshal(result)
+			    		fmt.Fprintf(w, string(strResult))
+		    		}else{
+		    			result := map[string]interface{}{"status": 0, "result": "失败"}
+		    			strResult,_ := json.Marshal(result)
+		    			fmt.Fprintf(w, string(strResult))
+		    		} 
+			    }else{
+			    	panic(err)
+			    	defer func() {
+				    	result := map[string]interface{}{"status": 1, "result": "数据格式错误"}
+				    	strResult,_ := json.Marshal(result)
+				    	fmt.Fprintf(w, string(strResult))
+			    	}()
 			    }
 			}else{
 				//key not right
