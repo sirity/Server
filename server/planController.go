@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	UserLovePara float64 = 0
+	UserLovePara float64 = 0.95
 )
 
 func fetchPlan(w http.ResponseWriter, r *http.Request) {
@@ -22,17 +22,25 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 
 		if userMap[username].sk!= "" {
 			if matchSessionKey(sk, userMap[username].sk){
-				fmt.Println("connet  succe....." )
 				var content Content
 				var infolist = make([]interface{}, 0, 10)
 				var contentArr = make([]string, 0, 10)
 				userInterests := stringToInterest(userMap[username].interest)
+				//adjust the para
+				// var tempLovePara float64
+				tempLovePara := UserLovePara
+				queryNumber := 0
 				for len(infolist)<=7 {
 					tempContents := content.QueryRandom()
+					queryNumber = queryNumber + 7
+					if queryNumber >= 14 {
+						tempLovePara = tempLovePara - 0.01
+						queryNumber = 0
+					}
 					for _, value := range tempContents {
 						if !checkContentRepeat(value.contents["id"], contentArr) {
 							logistic, _ := analyzer.GetInterestDegree(userInterests, stringToInterest(value.contents["tags"]))
-							if logistic > UserLovePara {
+							if logistic > tempLovePara {
 								var doILike string
 								var doIFavor string
 								var likeContent LikeContent

@@ -365,7 +365,50 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func forgetPassword(w http.ResponseWriter, r *http.Request) {
+// func forgetPassword(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method == "POST"{
+// 		username := r.FormValue("username")
+// 		date := r.FormValue("date")
+// 		random := r.FormValue("random")
+// 		fmt.Println(username)
+// 		fmt.Println(date)
+// 		fmt.Println(random)
+// 		if !CheckAttack(username, date, random) {
+// 			var user User
+// 			user1 := user.QueryUser(username)
+// 			if user1.contents !=nil{
+// 				//user exist
+// 				fk := forgetKey(username, date, random)
+// 				addForget(username, fk)
+
+// 				SendRegisterMail(username, mailAddress + "/user/reset_password/?username=" + username +
+// 					"&forgetkey=" + fk)
+// 				//user not exist
+// 				result := map[string]string{"status": "0", "key": "成功"}
+// 				strResult,_ := json.Marshal(result)
+// 				fmt.Fprintf(w, string(strResult))
+// 			}else{
+// 				//user not exist
+// 				result := map[string]string{"status": "2", "key": "用户名不存在"}
+// 				strResult,_ := json.Marshal(result)
+// 				fmt.Fprintf(w, string(strResult))
+// 			}
+// 		}else{
+// 			//it's not our client
+// 			result := map[string]string{"status": "4", "key": "这不是我们的"}
+// 			strResult,_ := json.Marshal(result)
+// 			fmt.Fprintf(w, string(strResult))
+// 		}
+// 	}else{
+// 		//network wrong
+// 		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+// 		strResult,_ := json.Marshal(result)
+// 		fmt.Fprintf(w, string(strResult))
+// 	}
+		
+// }
+
+func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		username := r.FormValue("username")
 		date := r.FormValue("date")
@@ -378,11 +421,11 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 			user1 := user.QueryUser(username)
 			if user1.contents !=nil{
 				//user exist
-				fk := forgetKey(username, date, random)
-				addForget(username, fk)
+				// fk := forgetKey(username, date, random)
+				checkCode :=getNewPassword()
+				addForget(username, checkCode)
 
-				SendRegisterMail(username, mailAddress + "/user/reset_password/?username=" + username +
-					"&forgetkey=" + fk)
+				SendForgetMail(username, checkCode)
 				//user not exist
 				result := map[string]string{"status": "0", "key": "成功"}
 				strResult,_ := json.Marshal(result)
@@ -390,6 +433,42 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 			}else{
 				//user not exist
 				result := map[string]string{"status": "2", "key": "用户名不存在"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		}else{
+			//it's not our client
+			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+		
+}
+
+func forgetPassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		date := r.FormValue("date")
+		random := r.FormValue("random")
+		password := r.FormValue("password")
+
+		if !CheckAttack(username, date, random) {
+			deleteForget(username)
+			var user User
+			user1 := user.QueryUser(username)
+			user1.contents["password"] = password
+			if user1.update() {
+				result := map[string]string{"status": "0", "result": "修改成功"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}else {
+				result := map[string]string{"status": "1", "result": "失败"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -422,36 +501,37 @@ func forgetKey(username, date, random string) string{
 	return b + a
 }
 
-func resetPassword(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET"{
-		username := r.FormValue("username")
-		forgetkey := r.FormValue("forgetkey")
-		if userForget[username] == forgetkey && forgetkey!="" {
-			deleteForget(username)
-			var user User
-			user1 := user.QueryUser(username)
-			newpwd := getNewPassword()
-			user1.contents["password"] = newpwd
-			if user1.update() {
-				fmt.Fprintf(w, "新密码:"+newpwd)
-			}else {
-				fmt.Fprintf(w, "获取密码失败！")
-			}
+// func resetPassword(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method == "GET"{
+// 		username := r.FormValue("username")
+// 		forgetkey := r.FormValue("forgetkey")
+// 		if userForget[username] == forgetkey && forgetkey!="" {
+// 			deleteForget(username)
+// 			var user User
+// 			user1 := user.QueryUser(username)
+// 			newpwd := getNewPassword()
+// 			user1.contents["password"] = newpwd
+// 			if user1.update() {
+// 				fmt.Fprintf(w, "新密码:"+newpwd)
+// 			}else {
+// 				fmt.Fprintf(w, "获取密码失败！")
+// 			}
 			
-		}else{
-			fmt.Fprintf(w, "链接失效！")
-		}
-	}else{
-		//network w
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
-		strResult,_ := json.Marshal(result)
-		fmt.Fprintf(w, string(strResult))
-	}
-}
+// 		}else{
+// 			fmt.Fprintf(w, "链接失效！")
+// 		}
+// 	}else{
+// 		//network w
+// 		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+// 		strResult,_ := json.Marshal(result)
+// 		fmt.Fprintf(w, string(strResult))
+// 	}
+// }
+
 const chartable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 func getNewPassword() string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	ran1 := r.Intn(3) + 5
+	ran1 := 6
 	var result string
 	for i:=0; i<ran1; i++ {
 		result = result + string(chartable[r.Intn(62)])
@@ -601,7 +681,7 @@ func SendForgetMail(to, content string){
     <html>
     <body>
     <h3>
-        click next to generate your new password and please rember modify your password as soon as you login
+        请用下面的验证码忘记你的密码(请不要讲该验证码告诉其他人)
         `+ content +
         `
     </h3>
