@@ -275,10 +275,10 @@ func setProfile(w http.ResponseWriter, r *http.Request) {
     			user1.contents["nickname"] = dat["nickname"].(string)
     			user1.contents["gender"] = dat["gender"].(string)
     			user1.contents["birthday"] = dat["birthday"].(string)
-    			tempStr, _ := json.Marshal(dat["interest"])
+    			// tempStr, _ := json.Marshal(dat["interest"])
     			
-    			user1.contents["interest"] =  string(tempStr)
-    			fmt.Println("nickname" + user1.contents["interest"])
+    			// user1.contents["interest"] =  string(tempStr)
+    			// fmt.Println("nickname" + user1.contents["interest"])
 				
 				if user1.update() {
 					result := map[string]string{"status": "0", "result": "修改成功"}

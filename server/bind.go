@@ -24,6 +24,7 @@ func bind() {
     mymux.HandleFunc("/content/toggle_like", toggleLike)
     mymux.HandleFunc("/content/fetch_like_number", fetchLikeNumber)
     mymux.HandleFunc("/content/do_i_like", doILike)
+    mymux.HandleFunc("/content/feedback", feedBack)
 
 
     //comment bind
@@ -33,4 +34,15 @@ func bind() {
     mymux.HandleFunc("/comment/toggle_like", commentToggleLike)
     mymux.HandleFunc("/comment/fetch_like_number", commentFetchLikeNumber)
     mymux.HandleFunc("/comment/do_i_like", commentDoILike)
+
+    //interest bind
+    mymux.HandleFunc("/interest/get_categories", getCategories)
+    mymux.HandleFunc("/interest/get_user_categories", getUserCategories)
+    mymux.HandleFunc("/interest/set_user_categories", setUserCategories)
+    mymux.HandleFunc("/interest/get_user_channel_list", getChannelList)
+    mymux.HandleFunc("/interest/get_user_channels", getUserChannels)
+    mymux.HandleFunc("/interest/set_user_channels", setUserChannels)
+
+
+    
 }

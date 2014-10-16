@@ -16,6 +16,7 @@ func (interestList *InterestList) Init() {
     interestList.contents["category"] = ""
     interestList.contents["name"] = ""
     interestList.contents["pic"] = ""
+    interestList.contents["degree"] = ""
 }
 
 func (interestList InterestList) QueryAll() map[int] *InterestList {
@@ -133,8 +134,8 @@ func (interestList InterestList) QueryInterestList(interestId string) *InterestL
 }
 
 func (interestList *InterestList) insert() bool {
-    stmt, err := db.Prepare("INSERT INTO interestList (id, category, name, pic)" + 
-        " VALUES(?, ?, ?, ?)")
+    stmt, err := db.Prepare("INSERT INTO interestList (id, category, name, pic, degree)" + 
+        " VALUES(?, ?, ?, ?, ?)")
     defer stmt.Close()
     checkErr(err)
    
@@ -146,7 +147,7 @@ func (interestList *InterestList) insert() bool {
     }
 
     _, err = stmt.Exec(index, interestList.contents["category"], 
-            interestList.contents["name"], interestList.contents["pic"])
+            interestList.contents["name"], interestList.contents["pic"], interestList.contents["degree"])
     if err != nil {
         fmt.Println(err)
         return false
@@ -169,7 +170,7 @@ func (interestList *InterestList) delete() bool {
 }
 
 func (interestList *InterestList) update() bool {
-    stmt, err := db.Prepare("update interestList set category = ?, name = ?, pic = ? " +
+    stmt, err := db.Prepare("update interestList set category = ?, name = ?, pic = ?, degree = ? " +
         " where id = ?")
     checkErr(err)
    
@@ -180,7 +181,8 @@ func (interestList *InterestList) update() bool {
         index = interestList.contents["id"]
     }
 
-    _, err = stmt.Exec(interestList.contents["category"], interestList.contents["name"], interestList.contents["pic"], index)
+    _, err = stmt.Exec(interestList.contents["category"], interestList.contents["name"], 
+        interestList.contents["pic"], interestList.contents["degree"], index)
 
     checkErr(err)
     if err != nil {

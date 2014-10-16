@@ -22,6 +22,7 @@ func (user *User) Init() {
 	user.contents["birthday"] = ""
 	user.contents["status"] = ""
 	user.contents["interest"] = ""
+    user.contents["category"] = ""
 }
 
 func (user User) QueryAll() map[int] *User {
@@ -83,7 +84,7 @@ func (user User) QueryAll() map[int] *User {
     return result
 }
 
-func (user User) QueryId(id int) User {
+func (user User) QueryId(id string) User {
 
     // Execute the query
     rows, err := db.Query("SELECT * FROM " + userTable + " where id = ? ", id)
@@ -195,8 +196,8 @@ func (user User) QueryUser(username string) User {
 }
 
 func (user *User) insert() bool {
-	stmt, err := db.Prepare("INSERT INTO user (id, username, nickname, password, portraitUrl, gender, birthday, status, interest)" + 
-		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO user (id, username, nickname, password, portraitUrl, gender, birthday, status, interest, category)" + 
+		" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	defer stmt.Close()
 	checkErr(err)
     var t interface{}
@@ -219,7 +220,7 @@ func (user *User) insert() bool {
     }
 	_, err = stmt.Exec(index, user.contents["username"], user.contents["nickname"],
 		user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
-		t, user.contents["status"], user.contents["interest"])
+		t, user.contents["status"], user.contents["interest"], user.contents["category"])
 	checkErr(err)
     if err != nil {
         fmt.Println(err)
@@ -238,7 +239,7 @@ func (user *User) delete(){
 
 func (user *User) update() bool {
 	stmt, err := db.Prepare("update user set username=?, nickname=?, password=?, portraitUrl=?, gender=?, " +
-		"birthday=?, status=?, interest=? where id = ?")
+		"birthday=?, status=?, interest=?, category=? where id = ?")
     checkErr(err)
     var t interface{}
     if user.contents["birthday"] == "" ||  user.contents["birthday"] == "NULL"{
@@ -261,7 +262,7 @@ func (user *User) update() bool {
     
     _, err = stmt.Exec(user.contents["username"], user.contents["nickname"],
         user.contents["password"], user.contents["portraitUrl"], user.contents["gender"],
-        t, user.contents["status"], user.contents["interest"], index)
+        t, user.contents["status"], user.contents["interest"], user.contents["category"], index)
 
     checkErr(err)
     if err != nil {
