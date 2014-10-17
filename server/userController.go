@@ -60,6 +60,66 @@ func login(w http.ResponseWriter, r *http.Request) {
 	
 }
 
+// func register(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method == "POST"{
+// 		username := r.FormValue("username")
+// 		password := r.FormValue("password")
+// 		date := r.FormValue("date")
+// 		random := r.FormValue("random")
+// 		if !CheckAttack(username, date, random) {
+// 			var user User
+// 			user1 := user.QueryUser(username)
+// 			if user1.contents !=nil{
+// 				//user exist
+// 				result := map[string]string{"status": "1", "result": "用户名存在"}
+// 				strResult,_ := json.Marshal(result)
+// 				fmt.Fprintf(w, string(strResult))
+// 			}else{
+// 				//user not exist
+// 				var user User 
+// 				user.Init()
+// 				user.contents["username"] = username
+// 				user.contents["nickname"] = "我是小白"
+// 				user.contents["password"] = password
+// 				user.contents["status"] = "0"
+// 				if(user.insert()){
+// 					//insert success
+// 					sk := SessionKey(username)
+// 					//TO-DO bugs
+// 					addUser(username, user.contents["id"], sk, user1.contents["interest"], date)
+
+// 					ak := activeKey(username, date, random)
+// 					addHung(username, ak)
+
+// 					// SendRegisterMail(username, "http://127.0.0.1:1280/user/active/?username=" + username +
+// 					// 	"&activekey=" + ak)
+// 					SendRegisterMail(username, mailAddress + "/user/active/?username=" + username +
+// 						"&activekey=" + ak)
+
+// 					result := map[string]string{"status": "0", "key": sk}
+// 					strResult,_ := json.Marshal(result)
+// 					fmt.Fprintf(w, string(strResult))
+// 				}else{
+// 					//insert fail
+// 					result := map[string]string{"status": "5", "key": "未知原因"}
+// 					strResult,_ := json.Marshal(result)
+// 					fmt.Fprintf(w, string(strResult))
+// 				}
+// 			}
+// 		}else{
+// 			//it's not our client
+// 			result := map[string]string{"status": "4", "key": "这不是我们的"}
+// 			strResult,_ := json.Marshal(result)
+// 			fmt.Fprintf(w, string(strResult))
+// 		}
+// 	}else{
+// 		//network wrong
+// 		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+// 		strResult,_ := json.Marshal(result)
+// 		fmt.Fprintf(w, string(strResult))
+// 	}
+// }
+
 func register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		username := r.FormValue("username")
@@ -88,13 +148,14 @@ func register(w http.ResponseWriter, r *http.Request) {
 					//TO-DO bugs
 					addUser(username, user.contents["id"], sk, user1.contents["interest"], date)
 
-					ak := activeKey(username, date, random)
-					addHung(username, ak)
+					// ak := activeKey(username, date, random)
+					// addHung(username, ak)
+					tempCheckCode := getSpecificLenRandom(4)
+					addHung(username, tempCheckCode)
 
 					// SendRegisterMail(username, "http://127.0.0.1:1280/user/active/?username=" + username +
 					// 	"&activekey=" + ak)
-					SendRegisterMail(username, mailAddress + "/user/active/?username=" + username +
-						"&activekey=" + ak)
+					SendRegisterMail(username, tempCheckCode)
 
 					result := map[string]string{"status": "0", "key": sk}
 					strResult,_ := json.Marshal(result)
@@ -134,33 +195,77 @@ func activeKey(username, date, random string) string{
 	return b + a
 }
 
+// func active(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method == "GET"{
+// 		username := r.FormValue("username")
+// 		activekey := r.FormValue("activekey")
+// 		if userHung[username] == activekey && activekey!="" {
+// 			deleteHung(username)
+// 			var user User
+// 			user1 := user.QueryUser(username)
+// 			user1.contents["status"] = "1"
+			
+// 			if user1.update() {
+// 				fmt.Fprintf(w, "激活成功！")
+// 			}else {
+// 				fmt.Fprintf(w, "激活失败！")
+// 			}
+			
+// 		}else{
+// 			fmt.Fprintf(w, "链接失效！")
+// 		}
+// 	}else{
+// 		//network w
+// 		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+// 		strResult,_ := json.Marshal(result)
+// 		fmt.Fprintf(w, string(strResult))
+// 	}
+// }
 func active(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET"{
+	if r.Method == "POST"{
 		username := r.FormValue("username")
-		activekey := r.FormValue("activekey")
-		if userHung[username] == activekey && activekey!="" {
-			deleteHung(username)
-			var user User
-			user1 := user.QueryUser(username)
-			user1.contents["status"] = "1"
-			
-			if user1.update() {
-				fmt.Fprintf(w, "激活成功！")
+		key := r.FormValue("key")
+		checkcode := r.FormValue("checkcode")
+		if userMap[username].sk!= "" {
+			if matchSessionKey(key, userMap[username].sk){
+				if checkcode == userHung[username] {
+					deleteHung(username)
+					var user User
+					user1 := user.QueryUser(username)
+					user1.contents["status"] = "1"
+					if user1.update() {
+						result := map[string]string{"status": "0", "result": "修改成功"}
+						strResult,_ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					}else {
+						result := map[string]string{"status": "1", "result": "修改失败"}
+						strResult,_ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					}
+				}else{
+					result := map[string]string{"status": "2", "result": "　验证码错误"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
 			}else {
-				fmt.Fprintf(w, "激活失败！")
+				//key not right
+				result := map[string]string{"status": "3", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
 			}
-			
-		}else{
-			fmt.Fprintf(w, "链接失效！")
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "4", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
-		//network w
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		//network wrong
+		result := map[string]string{"status": "5", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
 }
-
 
 func checkUserid(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
@@ -413,16 +518,13 @@ func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		date := r.FormValue("date")
 		random := r.FormValue("random")
-		fmt.Println(username)
-		fmt.Println(date)
-		fmt.Println(random)
 		if !CheckAttack(username, date, random) {
 			var user User
 			user1 := user.QueryUser(username)
 			if user1.contents !=nil{
 				//user exist
 				// fk := forgetKey(username, date, random)
-				checkCode :=getNewPassword()
+				checkCode :=getSpecificLenRandom(6)
 				addForget(username, checkCode)
 
 				SendForgetMail(username, checkCode)
@@ -457,30 +559,41 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 		date := r.FormValue("date")
 		random := r.FormValue("random")
 		password := r.FormValue("password")
+		checkcode := r.FormValue("checkcode")
 
 		if !CheckAttack(username, date, random) {
-			deleteForget(username)
-			var user User
-			user1 := user.QueryUser(username)
-			user1.contents["password"] = password
-			if user1.update() {
-				result := map[string]string{"status": "0", "result": "修改成功"}
-				strResult,_ := json.Marshal(result)
-				fmt.Fprintf(w, string(strResult))
+			if checkcode == userForget[username] {
+				deleteForget(username)
+				var user User
+				user1 := user.QueryUser(username)
+				user1.contents["password"] = password
+				if user1.update() {
+					sk := SessionKey(username)
+					//TO-DO bugs
+					addUser(username, user1.contents["id"], sk, user1.contents["interest"], date)
+
+					result := map[string]string{"status": "0", "key": sk}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}else {
+					result := map[string]string{"status": "1", "result": "未知失败"}
+					strResult,_ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
 			}else {
-				result := map[string]string{"status": "1", "result": "失败"}
+				result := map[string]string{"status": "2", "result": "验证码错误"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			//it's not our client
-			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			result := map[string]string{"status": "3", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "key": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -529,11 +642,19 @@ func forgetKey(username, date, random string) string{
 // }
 
 const chartable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-func getNewPassword() string {
+// func getNewPassword(len int) string {
+// 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+// 	var result string
+// 	for i:=0; i<len; i++ {
+// 		result = result + string(chartable[r.Intn(62)])
+// 	}
+// 	return result
+
+// }
+func getSpecificLenRandom(len int) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	ran1 := 6
 	var result string
-	for i:=0; i<ran1; i++ {
+	for i:=0; i<len; i++ {
 		result = result + string(chartable[r.Intn(62)])
 	}
 	return result

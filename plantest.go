@@ -7,12 +7,12 @@ import (
     "io/ioutil"
 )  
   
-func main() {  
-    // httpPostToggleFavor()
-    httpPostToggleLikeCotnent()
-    // httpPostFetchComment()
-    // httpPostCheckId()
-}
+// func main() {  
+//     // httpPostToggleFavor()
+//     httpPostToggleLikeCotnent()
+//     // httpPostFetchComment()
+//     // httpPostCheckId()
+// }
 
 func httpPostToggleFavor() {
     resp, err := http.PostForm("http://127.0.0.1:1280/favor/toggle_favor",
