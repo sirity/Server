@@ -131,7 +131,7 @@ func (interestCategory InterestCategory) QueryInterestCategory(categoryId string
     return &result
 }
 
-func (interestCategory *InterestCategory) insert() bool {
+func (interestCategory *InterestCategory) Insert() bool {
     stmt, err := db.Prepare("INSERT INTO interestCategory (id, name, pic)" + 
         " VALUES(?, ?, ?)")
     defer stmt.Close()
@@ -186,4 +186,9 @@ func (interestCategory *InterestCategory) update() bool {
         return false
     }
     return true
+}
+
+func (interestCategory *InterestCategory) SetValue(name, pic string) {
+    interestCategory.contents["name"] = name
+    interestCategory.contents["pic"] = pic
 }

@@ -7,12 +7,12 @@ import (
     "io/ioutil"
 )  
   
-// func main() {  
-//     httpPostLogin()
-//     // httpPostFetchFavor()
-//     // httpPostFetchComment()
-//     // httpPostCheckId()
-// }
+func main() {  
+    httpPostLogin()
+    // httpPostFetchFavor()
+    // httpPostFetchComment()
+    // httpPostCheckId()
+}
 
 func httpPostFetchFavor() {
     resp, err := http.PostForm("http://127.0.0.1:1280/favor/fetch_favor_list",

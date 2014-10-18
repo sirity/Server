@@ -146,7 +146,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 					//insert success
 					sk := SessionKey(username)
 					//TO-DO bugs
-					addUser(username, user.contents["id"], sk, user1.contents["interest"], date)
+					addUser(username, user.contents["id"], sk, user.contents["interest"], date)
 
 					// ak := activeKey(username, date, random)
 					// addHung(username, ak)
@@ -176,6 +176,43 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}else{
 		//network wrong
 		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		strResult,_ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+func resendRegisterCode(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST"{
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		fmt.Println("resend")
+		if userMap[username].sk!= "" {
+			if matchSessionKey(key, userMap[username].sk){
+				tempCheckCode := getSpecificLenRandom(4)
+				addHung(username, tempCheckCode)
+
+				// SendRegisterMail(username, "http://127.0.0.1:1280/user/active/?username=" + username +
+				// 	"&activekey=" + ak)
+				SendRegisterMail(username, tempCheckCode)
+
+				result := map[string]string{"status": "0", "result": "发送成功"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}else {
+				//key not right
+				result := map[string]string{"status": "3", "result": "访问失效"}
+				strResult,_ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult,_ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	}else{
+		//network wrong
+		result := map[string]string{"status": "5", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -226,6 +263,8 @@ func active(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		key := r.FormValue("key")
 		checkcode := r.FormValue("checkcode")
+		fmt.Println("userMap:" + userMap[username].sk)
+		fmt.Println("key:" + key)
 		if userMap[username].sk!= "" {
 			if matchSessionKey(key, userMap[username].sk){
 				if checkcode == userHung[username] {
@@ -243,7 +282,7 @@ func active(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprintf(w, string(strResult))
 					}
 				}else{
-					result := map[string]string{"status": "2", "result": "　验证码错误"}
+					result := map[string]string{"status": "4", "result": "　验证码错误"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
@@ -255,7 +294,7 @@ func active(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			// no login or server down
-			result := map[string]string{"status": "4", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
@@ -518,6 +557,10 @@ func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		date := r.FormValue("date")
 		random := r.FormValue("random")
+		fmt.Println("date:" + date)
+		fmt.Println("username:" +username)
+		fmt.Println("random:" + random)
+		fmt.Println("conect verfication")
 		if !CheckAttack(username, date, random) {
 			var user User
 			user1 := user.QueryUser(username)
@@ -526,7 +569,7 @@ func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 				// fk := forgetKey(username, date, random)
 				checkCode :=getSpecificLenRandom(6)
 				addForget(username, checkCode)
-
+				fmt.Println("conect verfication 0")
 				SendForgetMail(username, checkCode)
 				//user not exist
 				result := map[string]string{"status": "0", "key": "成功"}
@@ -534,18 +577,21 @@ func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, string(strResult))
 			}else{
 				//user not exist
+				fmt.Println("conect verfication 2")
 				result := map[string]string{"status": "2", "key": "用户名不存在"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			//it's not our client
+			fmt.Println("conect verfication 4")
 			result := map[string]string{"status": "4", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
 		//network wrong
+		fmt.Println("conect verfication 3")
 		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))

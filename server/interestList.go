@@ -133,7 +133,7 @@ func (interestList InterestList) QueryInterestList(interestId string) *InterestL
     return &result
 }
 
-func (interestList *InterestList) insert() bool {
+func (interestList *InterestList) Insert() bool {
     stmt, err := db.Prepare("INSERT INTO interestList (id, category, name, pic, degree)" + 
         " VALUES(?, ?, ?, ?, ?)")
     defer stmt.Close()
@@ -190,4 +190,11 @@ func (interestList *InterestList) update() bool {
         return false
     }
     return true
+}
+
+func (interestList *InterestList) SetValue(category, name, pic, degree string) {
+    interestList.contents["category"] = category
+    interestList.contents["name"] = name
+    interestList.contents["pic"] = pic
+    interestList.contents["degree"] = degree
 }

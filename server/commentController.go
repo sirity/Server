@@ -95,13 +95,13 @@ func postComment(w http.ResponseWriter, r *http.Request) {
 			    }
 			}else{
 				//key not right
-				result := map[string]string{"status": "2", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			// no login or server down
-			result := map[string]string{"status": "3", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
@@ -134,13 +134,13 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 				}
 			}else{
 				//key not right
-				result := map[string]string{"status": "2", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			// no login or server down
-			result := map[string]string{"status": "3", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
@@ -204,13 +204,13 @@ func commentToggleLike(w http.ResponseWriter, r *http.Request) {
 				}
 			}else{
 				//key not right
-				result := map[string]string{"status": "2", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			// no login or server down
-			result := map[string]string{"status": "3", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
@@ -242,13 +242,13 @@ func commentFetchLikeNumber(w http.ResponseWriter, r *http.Request) {
 				}
 			}else{
 				//key not right
-				result := map[string]string{"status": "2", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			// no login or server down
-			result := map[string]string{"status": "3", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
@@ -280,13 +280,13 @@ func commentDoILike(w http.ResponseWriter, r *http.Request) {
 				}
 			}else{
 				//key not right
-				result := map[string]string{"status": "2", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			// no login or server down
-			result := map[string]string{"status": "3", "result": "请重新登录"}
+			result := map[string]string{"status": "2", "result": "请重新登录"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
