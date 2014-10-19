@@ -192,3 +192,7 @@ func (interestCategory *InterestCategory) SetValue(name, pic string) {
     interestCategory.contents["name"] = name
     interestCategory.contents["pic"] = pic
 }
+
+func (interestCategory *InterestCategory) GetValue() (string, string) {
+    return interestCategory.contents["id"], interestCategory.contents["name"]
+}
