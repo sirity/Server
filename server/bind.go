@@ -44,6 +44,7 @@ func bind() {
     mymux.HandleFunc("/interest/get_user_channel_list", getChannelList)
     mymux.HandleFunc("/interest/get_user_channels", getUserChannels)
     mymux.HandleFunc("/interest/set_user_channels", setUserChannels)
+    mymux.HandleFunc("/interest/add_user_channels", addUserChannels)
 
 
     

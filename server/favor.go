@@ -77,7 +77,7 @@ func (favor Favor) QueryAll() map[int] *Favor {
     return result
 }
 
-func (favor Favor) QueryUserId(userId int) map[int] *Favor {
+func (favor Favor) QueryUserId(userId string) map[int] *Favor {
 
     // Execute the query
     rows, err := db.Query("SELECT * FROM " + favorTable + " where user_id = ? ", userId)

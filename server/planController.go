@@ -179,7 +179,7 @@ func interestToString(interest map[string] float32) string {
 */
 func stringToInterest(str string) map[string] float32 {
 	var dat map[string] float32
-	fmt.Println("user interest" + str)
+	// fmt.Println("user interest" + str)
 	if (str == "" || len(str)==0){
 		return nil
 	}
@@ -215,20 +215,21 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		username := r.FormValue("username")
 		sk := r.FormValue("key")
+		fmt.Println("fetchFavor  ->    connect")
 		// start_offset := r.FormValue("start_offset")
 		// number := r.FormValue("number")
 		if userMap[username].sk!= "" {
 			if matchSessionKey(sk, userMap[username].sk){
 				var favor Favor
 				var content Content
-				// favorList := favor.QueryUserId(userMap[username].userId)
-				favorList := favor.QueryUserId(1)
+				favorList := favor.QueryUserId(userMap[username].userId)
+				// favorList := favor.QueryUserId(1)
 				var infolist = make([]interface{}, 0, 10)
 				for _, value := range favorList {
 					tempContent := content.QueryId(value.contents["content_id"])
 					tempFavor := map[string]interface{}{
 						"content_id":tempContent.contents["id"], 
-						"title":tempContent.contents["summary"],
+						"title":tempContent.contents["title"],
 						"summary":tempContent.contents["summary"],
 						"type": tempContent.contents["type"],
 						"cover_url":tempContent.contents["cover_url"],
@@ -243,6 +244,7 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 				}
 				result := map[string]interface{}{"status": 0, "info_list": infolist}
 				strResult,_ := json.Marshal(result)
+				fmt.Println("fetchFavor:" + string(strResult))
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
