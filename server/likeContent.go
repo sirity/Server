@@ -160,7 +160,7 @@ func (likeContent LikeContent) QueryLikeContent(userId, contentId string) *LikeC
         scanArgs[i] = &values[i]
     }
 
-    var result LikeContent
+    var result *LikeContent
     // Fetch rows
     for rows.Next() {
         // get RawBytes from data
@@ -185,9 +185,9 @@ func (likeContent LikeContent) QueryLikeContent(userId, contentId string) *LikeC
             temp.contents[columns[i]] = value
         }
         // fmt.Println("-----------------------------------")
-        result = temp
+        result = &temp
     }
-    return &result
+    return result
 }
 
 func (likeContent *LikeContent) insert() bool {

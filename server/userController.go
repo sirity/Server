@@ -126,6 +126,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		date := r.FormValue("date")
 		random := r.FormValue("random")
+		fmt.Println("register")
 		if !CheckAttack(username, date, random) {
 			var user User
 			user1 := user.QueryUser(username)
