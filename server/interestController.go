@@ -38,7 +38,7 @@ func getCategories(w http.ResponseWriter, r *http.Request) {
 	}else{
 
 		//network wrong
-		result := map[string]string{"status": "2", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -60,7 +60,7 @@ func getUserCategories(w http.ResponseWriter, r *http.Request) {
 
 			}else{
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -73,7 +73,7 @@ func getUserCategories(w http.ResponseWriter, r *http.Request) {
 
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -97,14 +97,14 @@ func setUserCategories(w http.ResponseWriter, r *http.Request) {
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				} else {
-	    			result := map[string]string{"status": "0", "result": "失败"}
+	    			result := map[string]string{"status": "1", "result": "失败"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
 
 			}else{
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -117,7 +117,7 @@ func setUserCategories(w http.ResponseWriter, r *http.Request) {
 
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -154,7 +154,7 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 						tempChannel := map[string]interface{}{
 						"name": key1,
 						"pic": value1.pic,
-						"degree": value1.degree/3}
+						"degree": float64(value1.degree/float64(3))}
 						channelList = append(channelList, tempChannel)
 					}
 				}else{
@@ -176,20 +176,33 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 	    			}
 				}
 				
+    			// fmt.Println("channelList:+")
+
+    			for key,value := range channelList {
+    				fmt.Println(key)
+    				fmt.Println(value.(map[string]interface{})["degree"].(float64))
+    				fmt.Println(channelList[key].(map[string]interface{})["degree"].(float64))
+    				fmt.Println("-")
+    			}
 
     			//sort to find the max n
     			tempLen := len(channelList)
+    			fmt.Println("channelList:+")
+    			fmt.Println(tempLen)
     			for key, value := range channelList {
     				for j:= key+1; j<tempLen; j++ {
+    					// fmt.Println("j:")
+    					// fmt.Println(value.(map[string]interface{})["degree"].(float64))
+    					// fmt.Println(channelList[j].(map[string]interface{})["degree"].(float64))
     					if value.(map[string]interface{})["degree"].(float64) < 
     						channelList[j].(map[string]interface{})["degree"].(float64) {
     						temp := channelList[j]
     						channelList[j] = value
-    						value = temp
+    						channelList[key] = temp
     					}
     				}
     			}
-    			fmt.Println(tempLen)
+    			
 
     			var resultList = channelList[:9]
     			strList,_ := json.Marshal(resultList)
@@ -200,7 +213,7 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 
 			}else{
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -213,7 +226,7 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -232,7 +245,7 @@ func getUserChannels(w http.ResponseWriter, r *http.Request) {
 
 			}else{
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -245,7 +258,7 @@ func getUserChannels(w http.ResponseWriter, r *http.Request) {
 
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}

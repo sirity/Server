@@ -83,7 +83,7 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 			}else {
 				//key not right
 				fmt.Println("connet  succe1" )
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -96,7 +96,7 @@ func fetchPlan(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -135,7 +135,7 @@ func feedBack (w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -148,7 +148,7 @@ func feedBack (w http.ResponseWriter, r *http.Request) {
 
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -200,7 +200,7 @@ func fetchContentItem(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(strResult))
 	}else{
 		//network wrong
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -227,6 +227,20 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 				var infolist = make([]interface{}, 0, 10)
 				for _, value := range favorList {
 					tempContent := content.QueryId(value.contents["content_id"])
+					var doILike string
+					var doIFavor string
+					var likeContent LikeContent
+					var favor Favor
+					if likeContent.QueryLikeContent(userMap[username].userId, tempContent.contents["id"]) != nil {
+						doILike = "1"
+					}else{
+						doILike = "0"
+					}
+					if favor.QueryFavor(userMap[username].userId, tempContent.contents["id"]) != nil {
+						doIFavor = "1"
+					}else {
+						doIFavor = "0"
+					}
 					tempFavor := map[string]interface{}{
 						"content_id":tempContent.contents["id"], 
 						"title":tempContent.contents["title"],
@@ -239,6 +253,8 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 						"tags":tempContent.contents["tags"],
 						"rates":tempContent.contents["rates"],
 						"like_num":tempContent.contents["like_num"],
+						"do_i_like": doILike,
+						"do_i_favor": doIFavor, 
 						"date" : value.contents["date"]}
 					infolist = append(infolist, tempFavor)
 				}
@@ -248,7 +264,7 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -260,7 +276,7 @@ func fetchFavorList(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -273,6 +289,7 @@ func toggleFavor(w http.ResponseWriter, r *http.Request) {
 		contentId := r.FormValue("content_id")
 		//0not favor  1 favored
 		lastStatus := r.FormValue("last_status")
+		fmt.Println("toggle favor:" + lastStatus)
 		if userMap[username].sk!= "" {
 			if matchSessionKey(sk, userMap[username].sk){
 				//do favor
@@ -451,7 +468,7 @@ func doILike(w http.ResponseWriter, r *http.Request) {
 
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -464,7 +481,7 @@ func doILike(w http.ResponseWriter, r *http.Request) {
 		
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}

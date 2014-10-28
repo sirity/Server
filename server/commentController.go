@@ -36,7 +36,7 @@ func fetchCommentList(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, string(strResult))
 			}else{
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -48,7 +48,7 @@ func fetchCommentList(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -81,14 +81,14 @@ func postComment(w http.ResponseWriter, r *http.Request) {
 			    		strResult,_ := json.Marshal(result)
 			    		fmt.Fprintf(w, string(strResult))
 		    		}else{
-		    			result := map[string]interface{}{"status": 0, "result": "失败"}
+		    			result := map[string]interface{}{"status": 1, "result": "失败"}
 		    			strResult,_ := json.Marshal(result)
 		    			fmt.Fprintf(w, string(strResult))
 		    		} 
 			    }else{
 			    	panic(err)
 			    	defer func() {
-				    	result := map[string]interface{}{"status": 1, "result": "数据格式错误"}
+				    	result := map[string]interface{}{"status": 5, "result": "数据格式错误"}
 				    	strResult,_ := json.Marshal(result)
 				    	fmt.Fprintf(w, string(strResult))
 			    	}()
@@ -295,7 +295,7 @@ func commentDoILike(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(strResult))
 	}else{
 		//network wrong
-		result := map[string]string{"status": "1", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}

@@ -41,19 +41,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 				}
 			}else{
 				//user not exist
-				result := map[string]string{"status": "2", "key": "用户名不存在"}
+				result := map[string]string{"status": "8", "key": "用户名不存在"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			//it's not our client
-			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			result := map[string]string{"status": "6", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "key": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -170,13 +170,13 @@ func register(w http.ResponseWriter, r *http.Request) {
 			}
 		}else{
 			//it's not our client
-			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			result := map[string]string{"status": "6", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "key": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -213,7 +213,7 @@ func resendRegisterCode(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "5", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -283,7 +283,7 @@ func active(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprintf(w, string(strResult))
 					}
 				}else{
-					result := map[string]string{"status": "4", "result": "　验证码错误"}
+					result := map[string]string{"status": "7", "result": "　验证码错误"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
@@ -301,7 +301,7 @@ func active(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "5", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -325,7 +325,7 @@ func checkUserid(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -356,7 +356,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -384,7 +384,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, string(strResult))
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -396,7 +396,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -430,14 +430,14 @@ func setProfile(w http.ResponseWriter, r *http.Request) {
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}else {
-					result := map[string]string{"status": "4", "result": "未知错误"}
+					result := map[string]string{"status": "5", "result": "未知错误"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
 
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -449,7 +449,7 @@ func setProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -486,13 +486,13 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprintf(w, string(strResult))
 					}
 				}else{
-					result := map[string]string{"status": "4", "result": "密码错误"}
+					result := map[string]string{"status": "2", "result": "密码错误"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
 			}else {
 				//key not right
-				result := map[string]string{"status": "1", "result": "访问失效"}
+				result := map[string]string{"status": "3", "result": "访问失效"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
@@ -504,7 +504,7 @@ func setPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}else{
 		//network wrong
-		result := map[string]string{"status": "3", "result": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -579,21 +579,21 @@ func getVerificationCode(w http.ResponseWriter, r *http.Request) {
 			}else{
 				//user not exist
 				fmt.Println("conect verfication 2")
-				result := map[string]string{"status": "2", "key": "用户名不存在"}
+				result := map[string]string{"status": "8", "key": "用户名不存在"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			//it's not our client
 			fmt.Println("conect verfication 4")
-			result := map[string]string{"status": "4", "key": "这不是我们的"}
+			result := map[string]string{"status": "6", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
 	}else{
 		//network wrong
 		fmt.Println("conect verfication 3")
-		result := map[string]string{"status": "3", "key": "网络嗝屁了"}
+		result := map[string]string{"status": "4", "key": "网络嗝屁了"}
 		strResult,_ := json.Marshal(result)
 		fmt.Fprintf(w, string(strResult))
 	}
@@ -623,18 +623,18 @@ func forgetPassword(w http.ResponseWriter, r *http.Request) {
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}else {
-					result := map[string]string{"status": "1", "result": "未知失败"}
+					result := map[string]string{"status": "5", "result": "未知失败"}
 					strResult,_ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
 			}else {
-				result := map[string]string{"status": "2", "result": "验证码错误"}
+				result := map[string]string{"status": "7", "result": "验证码错误"}
 				strResult,_ := json.Marshal(result)
 				fmt.Fprintf(w, string(strResult))
 			}
 		}else{
 			//it's not our client
-			result := map[string]string{"status": "3", "key": "这不是我们的"}
+			result := map[string]string{"status": "6", "key": "这不是我们的"}
 			strResult,_ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		}
