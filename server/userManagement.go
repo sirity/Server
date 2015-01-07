@@ -1,5 +1,9 @@
 package server
 
+/*
+	this file is design to maintain the cache of the whole system
+	include the user sessions, interests, channels
+*/
 import (
 	"strconv"
 )

@@ -118,16 +118,28 @@ func feedBack (w http.ResponseWriter, r *http.Request) {
 				logisticOutput, net := analyzer.GetInterestDegree(userInterests, stringToInterest(content.contents["tags"]))
 				contentTags := stringToInterest(content.contents["tags"])
 
+				//adjust the user interest by deleta
+				tempFeedback,_ := strconv.ParseFloat(userFeedBack, 64)
 				for key1,value1 := range userInterests {
 					var total float64
 					total = 0
 					for key2, value2 := range contentTags {
 						total = total + analyzer.GetSrity(key1, key2) * float64(value1) * float64(value2)
 					}
-					tempFeedback,_ := strconv.ParseFloat(userFeedBack, 64)
+					
 					tempDelta := analyzer.Delta(tempFeedback, logisticOutput, total, net)
 					userInterests[key1] = userInterests[key1] + float32(tempDelta)
 				}
+
+				//expand user interests
+				// realDegree := (4.0 * tempFeedback + logisticOutput) / 5.0
+				// for key, value := range contentTags {
+				// 	if userInterests[key] ==0 || userInterests[key] == nil {
+				// 		userInterests[key] = value * realDegree
+				// 	}
+				// }
+
+
 				addUser(username, userMap[username].userId, userMap[username].sk, 
 					interestToString(userInterests), userMap[username].date)
 				result := map[string]interface{}{"status": 0, "result": "反馈成功"}

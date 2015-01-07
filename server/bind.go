@@ -17,7 +17,6 @@ func bind() {
     // mymux.HandleFunc("/user/reset_password/", resetPassword)
 
 
-
     //plan bind
     mymux.HandleFunc("/plan/fetch_plan", fetchPlan)
     mymux.HandleFunc("/plan/fetch_content_item", fetchContentItem)
@@ -45,7 +44,6 @@ func bind() {
     mymux.HandleFunc("/interest/get_user_channels", getUserChannels)
     mymux.HandleFunc("/interest/set_user_channels", setUserChannels)
     mymux.HandleFunc("/interest/add_user_channels", addUserChannels)
-
 
     
 }

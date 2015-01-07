@@ -163,7 +163,7 @@ func (likeComment LikeComment) QueryLikeComment(userId, commentId string) *LikeC
     var result *LikeComment
     // Fetch rows
     for rows.Next() {
-        // get RawBytes from data
+        // get RawBytes from data－
         err = rows.Scan(scanArgs...)
         if err != nil {
             panic(err.Error()) // proper error handling instead of panic in your app
