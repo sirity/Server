@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 /*
@@ -26,7 +27,7 @@ func getCategories(w http.ResponseWriter, r *http.Request) {
 		strCategoriesMap, err := json.Marshal(interestCategoriesMap)
 		fmt.Println("str categories:" + string(strCategoriesMap))
 		if err == nil {
-			result := map[string]string{"status": "0", "categories": string(strCategoriesMap)}
+			result := map[string]interface{}{"status": "0", "categories": string(strCategoriesMap)}
 			strResult, _ := json.Marshal(result)
 			fmt.Fprintf(w, string(strResult))
 		} else {
@@ -40,6 +41,68 @@ func getCategories(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
+		//network wrong
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
+		strResult, _ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+/*
+	返回用户没有订阅的领域 //deprecated
+*/
+func getSubscribeCategories(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		if userMap[username].sk != "" {
+			if matchSessionKey(key, userMap[username].sk) {
+				//cache all categoriesMap
+				if len(interestCategoriesMap) > 0 {
+					//categories exsit
+
+				} else {
+					var interestCategory InterestCategory
+					tempCategories := interestCategory.QueryAll()
+					for _, value := range tempCategories {
+						addInterestCategories(value.contents["name"], value.contents["pic"])
+					}
+				}
+				//get user categories
+				var user User
+				tempUser := user.QueryId(userMap[username].userId)
+
+				var oldCategories map[string]int
+				if err := json.Unmarshal([]byte(tempUser.contents["category"]), &oldCategories); err != nil {
+					panic(err)
+				}
+				//add categories not in user
+				newCategories := make(map[string]string)
+				for cateKey, cateValue := range interestCategoriesMap {
+					if _, ok := oldCategories[cateKey]; !ok {
+						newCategories[cateKey] = cateValue
+					}
+				}
+				strNewCategories, _ := json.Marshal(newCategories)
+				result := map[string]interface{}{"status": "0", "categories": string(strNewCategories)}
+				strResult, _ := json.Marshal(result)
+				fmt.Println("subscribeCategories:", string(strResult))
+				fmt.Fprintf(w, string(strResult))
+
+			} else {
+				//key not right
+				result := map[string]string{"status": "3", "result": "访问失效"}
+				strResult, _ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult, _ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+
+	} else {
 		//network wrong
 		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
 		strResult, _ := json.Marshal(result)
@@ -93,14 +156,93 @@ func setUserCategories(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		key := r.FormValue("key")
 		tempCategories := r.FormValue("categories")
-		fmt.Println("setUserCategories" + tempCategories)
+		fmt.Println("set UserCategories" + tempCategories)
 		if userMap[username].sk != "" {
 			if matchSessionKey(key, userMap[username].sk) {
-
 				//get user categories
 				var user User
 				tempUser := user.QueryId(userMap[username].userId)
+				var oldCategories map[string]int
+				if err := json.Unmarshal([]byte(tempUser.contents["category"]), &oldCategories); err != nil {
+					panic(err)
+				}
+				for _, value := range oldCategories {
+					if value == 0 {
+						//degree zero is not allowed
+						result := map[string]string{"status": "5", "result": "程度不能为零"}
+						strResult, _ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+						return
+					}
+				}
 				tempUser.contents["category"] = tempCategories
+				if tempUser.update() {
+					result := map[string]string{"status": "0", "result": "成功"}
+					strResult, _ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				} else {
+					result := map[string]string{"status": "1", "result": "失败"}
+					strResult, _ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
+
+			} else {
+				//key not right
+				result := map[string]string{"status": "3", "result": "访问失效"}
+				strResult, _ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult, _ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+
+	} else {
+		//network wrong
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
+		strResult, _ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
+/*
+add user categories  //deprecated
+*/
+func addUserCategories(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		tempCategories := r.FormValue("categories")
+		fmt.Println("addUserCategories" + tempCategories)
+		if userMap[username].sk != "" {
+			if matchSessionKey(key, userMap[username].sk) {
+				//get user categories
+				var user User
+				tempUser := user.QueryId(userMap[username].userId)
+				var oldCategories map[string]int
+				var addCategories map[string]int
+				if err := json.Unmarshal([]byte(tempUser.contents["category"]), &oldCategories); err != nil {
+					panic(err)
+				}
+				if err := json.Unmarshal([]byte(tempCategories), &addCategories); err != nil {
+					panic(err)
+				}
+
+				for cateKey, cateValue := range addCategories {
+					if _, ok := oldCategories[cateKey]; !ok {
+						oldCategories[cateKey] = cateValue
+					} else {
+						// subscrib categories had subscribed
+						result := map[string]string{"status": "6", "result": "订阅了已经订阅的领域"}
+						strResult, _ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+						return
+					}
+				}
+				categoryStr, _ := json.Marshal(oldCategories)
+				tempUser.contents["category"] = string(categoryStr)
 				if tempUser.update() {
 					result := map[string]string{"status": "0", "result": "成功"}
 					strResult, _ := json.Marshal(result)
@@ -139,6 +281,7 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		key := r.FormValue("key")
+		num := r.FormValue("number")
 		if userMap[username].sk != "" {
 			if matchSessionKey(key, userMap[username].sk) {
 				//cache all the interest channels
@@ -161,7 +304,10 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 
 				var dat map[string]int
 				var channelList = make([]interface{}, 0, 10)
-				if tempUser.contents["category"] == "" || len(tempUser.contents["category"]) == 0 {
+				if err := json.Unmarshal([]byte(tempUser.contents["category"]), &dat); err != nil {
+					panic(err)
+				}
+				if tempUser.contents["category"] == "{}" || tempUser.contents["category"] == "" || len(tempUser.contents["category"]) == 0 || len(dat) == 0 {
 					for key1, value1 := range interestChannelsMap {
 						tempChannel := map[string]interface{}{
 							"name":   key1,
@@ -170,10 +316,6 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 						channelList = append(channelList, tempChannel)
 					}
 				} else {
-					if err := json.Unmarshal([]byte(tempUser.contents["category"]), &dat); err != nil {
-						panic(err)
-					}
-
 					//add all the user may interest channels
 					for key, value := range dat {
 						for key1, value1 := range interestChannelsMap {
@@ -215,8 +357,13 @@ func getChannelList(w http.ResponseWriter, r *http.Request) {
 					}
 					fmt.Println("-----------")
 				}
+				number := 10
+				if num == "" {
 
-				var resultList = channelList[:10]
+				} else {
+					number, _ = strconv.Atoi(num)
+				}
+				var resultList = channelList[:number]
 				strList, _ := json.Marshal(resultList)
 				fmt.Println(string(strList))
 				result := map[string]interface{}{"status": "0", "channels": string(strList)}

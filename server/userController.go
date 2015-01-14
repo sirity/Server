@@ -143,6 +143,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 				user.contents["nickname"] = "我是小白"
 				user.contents["password"] = password
 				user.contents["status"] = "0"
+				user.contents["category"] = "{}"
+				user.contents["interest"] = "{}"
 				if user.insert() {
 					//insert success
 					sk := SessionKey(username)
