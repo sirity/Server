@@ -15,6 +15,10 @@ func bind() {
 	mymux.HandleFunc("/user/get_profile", getProfile)
 	// mymux.HandleFunc("/user/reset_password/", resetPassword)
 
+	//user portrait
+	mymux.HandleFunc("/user/upload_portrait", uploadPortrait)
+	mymux.HandleFunc("/user/portrait_success", portraitSuccess)
+
 	//plan bind
 	mymux.HandleFunc("/plan/fetch_plan", fetchPlan)
 	mymux.HandleFunc("/plan/fetch_content_item", fetchContentItem)

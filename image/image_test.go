@@ -1,7 +1,8 @@
-package server
+package image
 
 import (
-	"fmt"
+	"github.com/qiniu/api/io"
+	"log"
 	"testing"
 )
 
@@ -16,22 +17,28 @@ type PutExtra struct {
 	// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
 }
 
+type Ret struct {
+	Bucket string `json:"bucket"`
+	Key    string `json:"key"`
+	Domain string `json:"domain"`
+}
+
 func UpFlie(localFile string) {
 	var err error
-	var ret io.PutRet
+	var ret Ret
 	var extra = &io.PutExtra{
 	//Params:    params,
 	//MimeType:  mieType,
 	//Crc32:     crc32,
 	//CheckCrc:  CheckCrc,
 	}
-	uptoken := GetUpToken("mytutu")
+	uptoken := GetUpToken("kkk")
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为业务服务器生成的上传口令
 	// key       为文件存储的标识
 	// localFile 为本地文件名
 	// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
-	err = io.PutFile(nil, &ret, uptoken, "test", localFile, extra)
+	err = io.PutFileWithoutKey(nil, &ret, uptoken, localFile, extra)
 
 	if err != nil {
 		//上传产生错误
@@ -39,9 +46,14 @@ func UpFlie(localFile string) {
 		return
 	}
 	//上传成功，处理返回值
-	log.Print(ret.Hash, ret.Key)
+	log.Print(ret.Bucket, ret.Key, ret.Domain)
 }
 
 func TestUpImage(t *testing.T) {
 	UpFlie("/Users/hong/Desktop/1.png")
 }
+
+// func TestDelete(t *testing.T) {
+// 	DeteleImage("mytutu", "xxx-head")
+// 	log.Println("ok")
+// }
