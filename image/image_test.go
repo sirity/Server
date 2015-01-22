@@ -32,13 +32,13 @@ func UpFlie(localFile string) {
 	//Crc32:     crc32,
 	//CheckCrc:  CheckCrc,
 	}
-	uptoken := GetUpToken("kkk")
+	uptoken, key := GetUpToken("morven@sirity.com", "10")
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为业务服务器生成的上传口令
 	// key       为文件存储的标识
 	// localFile 为本地文件名
 	// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
-	err = io.PutFileWithoutKey(nil, &ret, uptoken, localFile, extra)
+	err = io.PutFile(nil, &ret, uptoken, key, localFile, extra)
 
 	if err != nil {
 		//上传产生错误
@@ -49,11 +49,18 @@ func UpFlie(localFile string) {
 	log.Print(ret.Bucket, ret.Key, ret.Domain)
 }
 
-func TestUpImage(t *testing.T) {
-	UpFlie("/Users/hong/Desktop/1.png")
+// func TestUpImage(t *testing.T) {
+// 	UpFlie("/Users/hong/Desktop/1.png")
+// }
+
+func TestDelete(t *testing.T) {
+	CallbackDeleteImage("morven@sirity.com", "http://mytutu.qiniudn.com/portrait/morven@sirity.com-head-6-1.jpg")
 }
 
-// func TestDelete(t *testing.T) {
-// 	DeteleImage("mytutu", "xxx-head")
-// 	log.Println("ok")
-// }
+func TestCheckUrl(t *testing.T) {
+	log.Printf("check url %v \n", CheckImageUrl("http://mytutu.qiniudn.com/portrait/morven@sirity.com-head-10-1.jpg"))
+}
+
+func TestGetNextId(t *testing.T) {
+	log.Printf("next id %v \n", GetNextHeadImageId("http://mytutu.qiniudn.com/portrait/morven@sirity.com-head-10-1.jpg"))
+}

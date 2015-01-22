@@ -376,7 +376,7 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 				result := map[string]string{"status": "0",
 					"username":     user1.contents["username"],
 					"nickname":     user1.contents["nickname"],
-					"portrait_url": user1.contents["portrait_url"],
+					"portrait_url": user1.contents["portraitUrl"],
 					"gender":       user1.contents["gender"],
 					"birthday":     user1.contents["birthday"],
 					"state":        user1.contents["status"],
@@ -465,9 +465,12 @@ func uploadPortrait(w http.ResponseWriter, r *http.Request) {
 		key := r.FormValue("key")
 		if userMap[username].sk != "" {
 			if matchSessionKey(key, userMap[username].sk) {
-				token := image.GetUpToken(username)
+				var user User
+				user1 := user.QueryUser(username)
+				headid := image.GetNextHeadImageId(user1.contents["portraitUrl"])
+				token, headkey := image.GetUpToken(username, headid)
 				if len(token) > 0 {
-					result := map[string]string{"status": "0", "token": token}
+					result := map[string]string{"status": "0", "token": token, "headkey": headkey}
 					strResult, _ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				} else {
@@ -501,22 +504,29 @@ func portraitSuccess(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		key := r.FormValue("key")
-		portraitUrl := r.FormValue("portrait-url")
+		portraitUrl := r.FormValue("portrait_url")
 		if userMap[username].sk != "" {
 			if matchSessionKey(key, userMap[username].sk) {
-				var user User
-				user1 := user.QueryUser(username)
-				user1.contents["portraitUrl"] = portraitUrl
-				if user1.update() {
-					result := map[string]string{"status": "0", "result": "头像上传成功"}
-					strResult, _ := json.Marshal(result)
-					fmt.Fprintf(w, string(strResult))
+				//验证url是否符合规则
+				if image.CheckImageUrl(portraitUrl) {
+					var user User
+					user1 := user.QueryUser(username)
+					user1.contents["portraitUrl"] = portraitUrl
+					if user1.update() {
+						image.CallbackDeleteImage(username, portraitUrl)
+						result := map[string]string{"status": "0", "result": "头像上传成功"}
+						strResult, _ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					} else {
+						result := map[string]string{"status": "6", "result": "url错误"}
+						strResult, _ := json.Marshal(result)
+						fmt.Fprintf(w, string(strResult))
+					}
 				} else {
 					result := map[string]string{"status": "5", "result": "未知错误"}
 					strResult, _ := json.Marshal(result)
 					fmt.Fprintf(w, string(strResult))
 				}
-
 			} else {
 				//key not right
 				result := map[string]string{"status": "3", "result": "访问失效"}
