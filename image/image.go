@@ -10,22 +10,22 @@ import (
 )
 
 const (
-	BucketName = "mytutu"
+	BucketName = "sirityportrait"
 )
 
 var client rs.Client
 
 func init() {
-	ACCESS_KEY = "ULtAj7XU42HfRPxrlhRJM-PCNhh6QpcksUhTRmfk"
-	SECRET_KEY = "m4L4vEwgUsR0sK6q0-I7845mdEkl3bfA97cXGnAz"
+	ACCESS_KEY = "ecK6qDx0fNV3yrjdGzOY4_glpCZSyNhgoQ7LjvfH"
+	SECRET_KEY = "utiFcMNl1dIeKv-XAcNzJp6dfgblOwiW_haC44AA"
 	client = rs.New(nil)
 }
 
 func GetUpToken(username, id string) (string, string) {
 	//空间名称
 	bucketName := BucketName
-	// 过期时间 now + 1 h
-	var deadline uint32 = uint32(time.Now().Second() + 1*3600)
+	// 过期时间 now + 0.5 h
+	var deadline uint32 = uint32(time.Now().Second() + 1*1800)
 	//主属表示
 	endUser := "sirity-app"
 	//回调
@@ -41,7 +41,7 @@ func GetUpToken(username, id string) (string, string) {
 	//资源名
 	var saveKey string = GetHeadKey(username, id)
 	// time.Sleep(time.Second * 10)
-	returnBody := `{"key": $(key), "bucket": $(bucket), "domain":".qiniudn"}`
+	returnBody := `{"key": $(key), "bucket": $(bucket), "domain":"7u2olr.com2.z0.glb.qiniucdn"}`
 	putPolicy := rs.PutPolicy{
 		Scope:      bucketName + ":" + saveKey,
 		InsertOnly: 0,

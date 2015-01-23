@@ -405,6 +405,50 @@ func getProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// 显示用户简介
+func getUserInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		key := r.FormValue("key")
+		userid := r.FormValue("userid")
+		if userMap[username].sk != "" {
+			if matchSessionKey(key, userMap[username].sk) {
+				var user User
+				user1 := user.QueryId(userid)
+				if user1 != nil {
+					result := map[string]string{"status": "0",
+						"username":     user1.contents["username"],
+						"nickname":     user1.contents["nickname"],
+						"portrait_url": user1.contents["portraitUrl"],
+					}
+					strResult, _ := json.Marshal(result)
+					fmt.Println("user info" + string(strResult))
+					fmt.Fprintf(w, string(strResult))
+				} else {
+					result := map[string]string{"status": "5", "result": "用户不存在"}
+					strResult, _ := json.Marshal(result)
+					fmt.Fprintf(w, string(strResult))
+				}
+			} else {
+				//key not right
+				result := map[string]string{"status": "3", "result": "访问失效"}
+				strResult, _ := json.Marshal(result)
+				fmt.Fprintf(w, string(strResult))
+			}
+		} else {
+			// no login or server down
+			result := map[string]string{"status": "2", "result": "请重新登录"}
+			strResult, _ := json.Marshal(result)
+			fmt.Fprintf(w, string(strResult))
+		}
+	} else {
+		//network wrong
+		result := map[string]string{"status": "4", "result": "网络嗝屁了"}
+		strResult, _ := json.Marshal(result)
+		fmt.Fprintf(w, string(strResult))
+	}
+}
+
 func setProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		username := r.FormValue("username")
